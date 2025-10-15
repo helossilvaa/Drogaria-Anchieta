@@ -3,6 +3,7 @@ import { JWT_SECRET } from '../config/jwt.js';
 import { read } from '../config/database.js'; 
 
 const authMiddleware = async (req, res, next) => {
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -20,10 +21,8 @@ const authMiddleware = async (req, res, next) => {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
     
-    req.user = user;
     req.usuarioId = decoded.id;
     req.usuarioNome = decoded.nome;
-    req.usuarioFuncao = decoded.funcao;
     req.usuarioSetor = decoded.setor;
     next();
     
