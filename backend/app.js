@@ -3,9 +3,13 @@ import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import usuarioRotas from './routes/usuarioRotas.js';
-import fornecedoresRoutes from './routes/fornecedoresRoutes.js'; 
-
-
+import filiadosRotas from "./routes/filiadosRotas.js";
+import fornecedoresRoutes from './routes/fornecedoresRoutes.js';
+import vendasRotas from './routes/vendasRotas.js';
+import tipoPagamentoRotas from './routes/tipoPagamentoRotas.js';
+import itens_vendaRotas from './routes/itens_vendaRotas.js'
+import abrirFechar_CaixaRotas from './routes/abrirFechar_CaixaRotas.js';
+import categoriaRotas from './routes/categoriaRotas.js';
 
 dotenv.config();
 
@@ -33,9 +37,13 @@ try {
 }
 
 app.use('/usuarios', usuarioRotas);
+app.use("/api", filiadosRotas);
 app.use('/fornecedores', fornecedoresRoutes);
-
-
+app.use('/vendas', vendasRotas);
+app.use('/pagamento', tipoPagamentoRotas);
+app.use('/itens', itens_vendaRotas);
+app.use('/caixa', abrirFechar_CaixaRotas);
+app.use('/categoria', categoriaRotas);
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'online' });
 });
