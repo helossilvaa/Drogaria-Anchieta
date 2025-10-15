@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
-
 import usuarioRotas from './routes/usuarioRotas.js';
+import fornecedoresRoutes from './routes/fornecedoresRoutes.js'; 
+
+
 
 dotenv.config();
 
@@ -31,7 +33,7 @@ try {
 }
 
 app.use('/usuarios', usuarioRotas);
-
+app.use('/fornecedores', fornecedoresRoutes);
 
 
 app.get('/health', (req, res) => {
