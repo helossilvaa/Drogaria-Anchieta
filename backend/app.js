@@ -3,7 +3,6 @@ import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
-import authRotas from './routes/authRotas.js';
 import usuarioRotas from './routes/usuarioRotas.js';
 
 dotenv.config();
@@ -25,11 +24,6 @@ try {
     cookie: { secure: false }
   }));
 
-  if (!passport) {
-    throw new Error('Passport não foi importado corretamente');
-  }
-  app.use(passport.initialize());
-  app.use(passport.session());
 
 } catch (err) {
   console.error('Erro na configuração inicial:', err);
