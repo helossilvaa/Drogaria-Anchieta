@@ -1,5 +1,7 @@
-import {create, readAll, read, query, update} from '../config/database.js';
+import {create, readAll, read, update, deleteRecord} from '../config/database.js';
 
+
+//criar usuario
 const criarUsuario = async (usuarioData) => {
     try {
         return await create('usuarios', usuarioData)
@@ -7,8 +9,10 @@ const criarUsuario = async (usuarioData) => {
         console.error('Erro ao criar usuario: ', error);
         throw error;
     }
-}
+};
 
+
+//listar usuario
 const listarUsuarios = async () => {
     try {
         return await readAll('usuarios');
@@ -18,94 +22,52 @@ const listarUsuarios = async () => {
     }
 }
 
-const obterUsuario = async (registro)=> {
+
+//obter usuario
+const obterUsuarioId = async (id)=> {
     try {
-        return await read('usuarios', `registro = ${registro}`)
+        return await read('usuarios', `id = ${id}`)
     } catch (error) {
-        console.error('Erro ao obter usuario por registro: ', error);
+        console.error('Erro ao obter usuario por id: ', error);
         throw error;
     }
 };
 
-const obterUsuarioId = async (id) => {
+
+//atualizar usuario
+const atualizarUsuario = async (id, usuarioData) => {
   try {
-    return await read('usuarios', `id = ${id}`);
+    return await update('usuarios', usuarioData, `id = ${id}`);
   } catch (error) {
-    console.error('Erro ao obter usuário por id:', error);
+    console.error('Erro ao atualizar usuário por id:', error);
     throw error;
   }
 };
 
-
-const obterUsuarioPorEmail = async (email) => {
-
+//deletar o usuario
+const deletarUsuario = async (id) => {
     try {
-        return await read('usuarios', `email = '${email}'`);
+        return await deleteRecord('usuarios', `id = '${id}'`);
     } catch (error) {
-        console.error('Erro ao obter usuario por email: ', error);
+        console.error('Erro ao excluir usuário: ', error);
         throw error;
     }
     
-  };
-
-const verificarPrimeiroLogin = async (id) => {
-    const usuario = await read('usuarios', `id = ${id}`);
-    return usuario.primeiro_login === 1; // 1 = true, 0 = false
 };
 
-const marcarLoginFeito = async (id) => {
-    await update('usuarios', { primeiro_login: 0 }, `id = ${id}`);
-};
 
-const listarTecnicos = async () => {
-    try {
-      return await readAll('usuarios', `funcao = 'tecnico'`);
-    } catch (error) {
-      console.error('Erro ao listar técnicos: ', error);
-      throw error;
-    }
-};
-
-const listarTecnicosComPools = async () => {
-    const sql = `
-      SELECT
-        u.id,
-        u.nome,
-        u.setor,
-        u.status,
-        u.email,
-        p.id AS pool_id,
-        p.titulo AS pool_nome
-      FROM usuarios u
-      LEFT JOIN pool_tecnico tp ON u.id = tp.tecnico_id
-      LEFT JOIN pool p ON tp.id_pool = p.id
-      WHERE u.funcao = 'tecnico';
-    `;
-    const rows = await query(sql);
-
-    const tecnicosMap = {};
-    rows.forEach(row => {
-        if (!tecnicosMap[row.id]) {
-            tecnicosMap[row.id] = { id: row.id, nome: row.nome, setor: row.setor, status: row.status, pools: [], email: row.email };
-        }
-        if (row.pool_id) {
-            tecnicosMap[row.id].pools.push({ id: row.pool_id, nome: row.pool_nome });
-        }
-    });
-
-    return Object.values(tecnicosMap);
-}
-
-const mudarStatusTecnico = async (id, novoStatus) => {
+//atualizar status do funcionario (ativo ou inativo)
+const mudarStatusFuncionario = async (id, novoStatus) => {
     try {
         const dadosParaAtualizar = { status: novoStatus };
-        const condicao = `id = ${id}`;
-        return await update('usuarios', dadosParaAtualizar, condicao);
+        const usuarioid = `id = ${id}`;
+        return await update('usuarios', dadosParaAtualizar, usuarioid);
     } catch (error) {
-        console.error('Erro ao mudar status do técnico:', error);
+        console.error('Erro ao mudar status do funcionário:', error);
         throw error;
     }
 };
+
 
 const obterStatusUsuario = async (id) => {
     try {
@@ -118,4 +80,4 @@ const obterStatusUsuario = async (id) => {
 };
 
 
-export {criarUsuario, listarUsuarios, obterUsuario, obterUsuarioPorEmail, obterUsuarioId, verificarPrimeiroLogin, marcarLoginFeito, listarTecnicos, listarTecnicosComPools, mudarStatusTecnico, obterStatusUsuario};
+export {criarUsuario, listarUsuarios, obterUsuarioId, atualizarUsuario, deletarUsuario, mudarStatusFuncionario, obterStatusUsuario};
