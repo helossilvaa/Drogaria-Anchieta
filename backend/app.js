@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
+
+import authRotas from './routes/authRotas.js';
 import usuarioRotas from './routes/usuarioRotas.js';
 import vendasRotas from './routes/vendasRotas.js';
 import tipoPagamentoRotas from './routes/tipoPagamentoRotas.js';
@@ -34,7 +36,7 @@ try {
   console.error('Erro na configuração inicial:', err);
   process.exit(1);
 }
-
+app.use('/auth', authRotas);
 app.use('/usuarios', usuarioRotas);
 app.use('/vendas', vendasRotas);
 app.use('/pagamento', tipoPagamentoRotas);
