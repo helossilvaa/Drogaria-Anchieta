@@ -9,4 +9,5 @@ async function generateHashedPassword(senha) {
     }
 }
 
+
 export default generateHashedPassword;
