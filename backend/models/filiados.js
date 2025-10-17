@@ -1,4 +1,4 @@
-import { create, readAll, read } from "../config/database.js";
+import { create, readAll, read, update, deleteRecord } from "../config/database.js";
 
 export const Filiado = {
   create: async (data) => {
@@ -6,10 +6,21 @@ export const Filiado = {
   },
 
   getAll: async () => {
-    return await readAll("filiados");
+    const result = await readAll("filiados");
+    return Array.isArray(result) ? result : [];
   },
 
-  getByCPF: async (cpf) => {
-    return await read("filiados", `cpf = '${cpf}'`);
-  }
+ getByCPF: async (cpf) => {
+  const result = await read("filiados", `cpf = '${cpf}'`);
+  if (!result || result.length === 0) return null;
+  return result[0];
+},
+
+  update: async (id, data) => {
+    return await update("filiados", data, `id = ${id}`);
+  },
+
+  delete: async (id) => {
+    return await deleteRecord("filiados", `id = ${id}`);
+  },
 };
