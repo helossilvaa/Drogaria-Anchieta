@@ -2,7 +2,7 @@ import { create, deleteRecord, read, readAll, update } from "../config/database.
 
 const criarCategoria = async (categoriaData) => {
     try {
-        return await create ('Categoria', categoriaData);
+        return await create ('categorias', categoriaData);
     }catch (error) {
         console.error('Erro ao categoria: ', error);
         throw error;
@@ -11,7 +11,7 @@ const criarCategoria = async (categoriaData) => {
 
 const listarCategoria = async ()=>{
     try{
-        return await readAll ('categoria');
+        return await readAll ('categorias');
     }catch (error){
         console.error('Erro ao listar categoria: ', error);
         throw error;
@@ -20,7 +20,7 @@ const listarCategoria = async ()=>{
 
 const obterCategoriaPorID = async (id) => {
     try{
-        return await read ('categoria', `id = ${id}`);
+        return await read ('categorias', `id = ${id}`);
 
     }catch (error) {
         console.error('Erro ao obter categoria por id: ', error);
@@ -30,7 +30,7 @@ const obterCategoriaPorID = async (id) => {
 
 const atualizarCategoria = async (id, categoriaData) => {
     try{
-        return await update ('categoria', categoriaData, `id = ${id}`);
+        return await update ('categorias', categoriaData, `id = ${id}`);
     }catch (error) {
         console.error('Error ao atualizar categoria: ', error);
         throw error;
@@ -39,7 +39,7 @@ const atualizarCategoria = async (id, categoriaData) => {
 
 const deletarCategoria = async (id) => {
     try{
-        return await deleteRecord ('categoria', `id = ${id}`);
+        return await deleteRecord ('categorias', `id = ${id}`);
     }catch (error) {
         console.error('Erro ao deletar categoria: ', error);
         throw error;

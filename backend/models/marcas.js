@@ -2,7 +2,7 @@ import { create, deleteRecord, read, readAll, update } from "../config/database.
 
 const criarMarca = async (marcaData) => {
     try {
-        return await create ('Marca', marcaData);
+        return await create ('marcas', marcaData);
     }catch (error) {
         console.error('Erro ao criar marca: ', error);
         throw error;
@@ -11,7 +11,7 @@ const criarMarca = async (marcaData) => {
 
 const listarMarca = async ()=>{
     try{
-        return await readAll ('marca');
+        return await readAll ('marcas');
     }catch (error){
         console.error('Erro ao listar marca: ', error);
         throw error;
@@ -20,7 +20,7 @@ const listarMarca = async ()=>{
 
 const obterMarcaPorID = async (id) => {
     try{
-        return await read ('marca', `id = ${id}`);
+        return await read ('marcas', `id = ${id}`);
 
     }catch (error) {
         console.error('Erro ao obter marca por id: ', error);
@@ -30,7 +30,7 @@ const obterMarcaPorID = async (id) => {
 
 const atualizarMarca = async (id, marcaData) => {
     try{
-        return await update ('marca', marcaData, `id = ${id}`);
+        return await update ('marcas', marcaData, `id = ${id}`);
     }catch (error) {
         console.error('Error ao atualizar marca: ', error);
         throw error;
@@ -39,7 +39,7 @@ const atualizarMarca = async (id, marcaData) => {
 
 const deletarMarca = async (id) => {
     try{
-        return await deleteRecord ('marca', `id = ${id}`);
+        return await deleteRecord ('marcas', `id = ${id}`);
     }catch (error) {
         console.error('Erro ao deletar marca: ', error);
         throw error;
