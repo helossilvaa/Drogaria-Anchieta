@@ -8,6 +8,8 @@ import tipoPagamentoRotas from './routes/tipoPagamentoRotas.js';
 import itens_vendaRotas from './routes/itens_vendaRotas.js'
 import abrirFechar_CaixaRotas from './routes/abrirFechar_CaixaRotas.js';
 import categoriaRotas from './routes/categoriaRotas.js';
+import fornecedoresRotas from './routes/fornecedoresRoutes.js';
+
 
 dotenv.config();
 
@@ -40,6 +42,8 @@ app.use('/pagamento', tipoPagamentoRotas);
 app.use('/itens', itens_vendaRotas);
 app.use('/caixa', abrirFechar_CaixaRotas);
 app.use('/categoria', categoriaRotas);
+app.use('/api', fornecedoresRotas);
+
 
 
 

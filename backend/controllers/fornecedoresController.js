@@ -1,14 +1,18 @@
 import { Fornecedores } from "../models/fornecedores.js";
  
 export const criarFornecedores = async (req, res) => {
-  const { fornecedor, email, telefone, cnpj, cep, cidade, estado, endereco, status } = req.body;
- 
-  if (!fornecedor || !email || !telefone || !cnpj || !cep || !cidade || !estado || !endereco ||  status === undefined || status === null ) {
+  const { fornecedor, email, telefone, cnpj, cep, cidade, estado, bairro, logradouro, numero, status } = req.body;
+
+  if (!fornecedor || !email || !telefone || !cnpj || !cep || !cidade || !estado || !bairro || !logradouro || numero === undefined || numero === null || numero === '' || status === undefined || status === null) {
     return res.status(400).json({ message: "Preencha todos os campos." });
   }
- 
+
+  const statusBanco = status === true ? 'ativa' : 'inativa';
+
   try {
-    const insertId = await Fornecedores.create({ fornecedor, email, telefone, cnpj, cep, cidade, estado, endereco, status  });
+    const insertId = await Fornecedores.create({
+      fornecedor, email, telefone, cnpj, cep, cidade, estado, bairro, logradouro, numero, status: statusBanco
+    });
     return res.status(201).json({ message: "Fornecedor cadastrado com sucesso!", id: insertId });
   } catch (err) {
     console.error(err);
@@ -25,3 +29,49 @@ export const listarFornecedores = async (req, res) => {
     return res.status(500).json({ message: "Erro ao listar Fornecedores." });
   }
 };
+
+export const editarFornecedor = async (req, res) => {
+  const { id } = req.params;
+  const { fornecedor, email, telefone, cnpj, cep, cidade, estado, bairro, logradouro, numero, status } = req.body;
+
+  if (!fornecedor || !email || !telefone || !cnpj || !cep || !cidade || !estado || !bairro || !logradouro || numero === undefined || numero === null || numero === '' || status === undefined || status === null) {
+    return res.status(400).json({ message: "Preencha todos os campos." });
+  }
+
+  const statusBanco = status === true ? 'ativa' : 'inativa';
+
+  try {
+    const updated = await Fornecedores.update(id, {
+      fornecedor, email, telefone, cnpj, cep, cidade, estado, bairro, logradouro, numero, status: statusBanco
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Fornecedor não encontrado." });
+    }
+
+    return res.status(200).json({ message: "Fornecedor atualizado com sucesso!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Erro ao atualizar Fornecedor." });
+  }
+};
+
+export const excluirFornecedor = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Fornecedores.delete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Fornecedor não encontrado." });
+    }
+
+    return res.status(200).json({ message: "Fornecedor excluído com sucesso!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Erro ao excluir Fornecedor." });
+  }
+};
+
+
+

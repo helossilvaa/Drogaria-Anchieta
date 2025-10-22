@@ -1,4 +1,4 @@
-import { create, readAll } from "../config/database.js";
+import { create, readAll, update, deleteRecord } from "../config/database.js";
 
 export const Fornecedores = {
   create: async (data) => {
@@ -7,5 +7,13 @@ export const Fornecedores = {
 
   getAll: async () => {
     return await readAll("fornecedores");
-  }
+  },
+
+  update: async (id, data) => {
+    return await update("fornecedores", data, `id = ${id}`);
+  },
+
+  delete: async (id) => {
+    return await deleteRecord("fornecedores", `id = ${id}`);
+  },
 };
