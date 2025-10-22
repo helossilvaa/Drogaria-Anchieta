@@ -10,11 +10,10 @@ export const Filiado = {
     return Array.isArray(result) ? result : [];
   },
 
- getByCPF: async (cpf) => {
-  const result = await read("filiados", `cpf = '${cpf}'`);
-  if (!result || result.length === 0) return null;
-  return result[0];
-},
+  getByCPF: async (cpf) => {
+    const result = await read("filiados", `cpf = '${cpf}'`);
+    return result?.[0] || null;
+  },
 
   update: async (id, data) => {
     return await update("filiados", data, `id = ${id}`);

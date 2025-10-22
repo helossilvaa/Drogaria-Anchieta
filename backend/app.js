@@ -11,6 +11,12 @@ import itens_vendaRotas from './routes/itens_vendaRotas.js'
 import abrirFechar_CaixaRotas from './routes/abrirFechar_CaixaRotas.js';
 import categoriaRotas from './routes/categoriaRotas.js';
 import filiadosRotas from './routes/filiadosRotas.js';
+import tiposDescontosRotas from "./routes/tiposDescontosRotas.js";
+import parceriaRotas from "./routes/parceriaRotas.js";
+import descontosRotas from "./routes/descontosRotas.js";
+import fornecedoresRotas from './routes/fornecedoresRoutes.js';
+import contasFilialRotas from './routes/contasFilialRotas.js';
+import produtosRotas from './routes/produtosRotas.js';
 
 dotenv.config();
 
@@ -36,6 +42,7 @@ try {
   console.error('Erro na configuração inicial:', err);
   process.exit(1);
 }
+
 app.use('/auth', authRotas);
 app.use('/usuarios', usuarioRotas);
 app.use('/vendas', vendasRotas);
@@ -44,7 +51,12 @@ app.use('/itens', itens_vendaRotas);
 app.use('/caixa', abrirFechar_CaixaRotas);
 app.use('/categoria', categoriaRotas);
 app.use('/api', filiadosRotas);
-
+app.use("/api", tiposDescontosRotas);
+app.use("/api", parceriaRotas);
+app.use("/api", descontosRotas);
+app.use('/api', fornecedoresRotas);
+app.use('/api', contasFilialRotas);
+app.use ('/produtos', produtosRotas)
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'online' });

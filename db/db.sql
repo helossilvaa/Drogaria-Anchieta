@@ -196,7 +196,6 @@ CREATE TABLE filiados (
     bairro VARCHAR(200) NOT NULL,
     desconto_id INT NOT NULL,
     FOREIGN KEY (desconto_id) REFERENCES descontos (id)
-	
 );
 
 CREATE TABLE servicos (
