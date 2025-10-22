@@ -14,20 +14,38 @@ export default function CadastroFornecedores() {
     bairro: "",
     logradouro: "",
     numero: "",
-    status: true, // Deixando o status como booleano para garantir a consistência
+    status: true, // status padrão: ativo
   };
 
   const [abrirModal, setAbrirModal] = useState(false);
   const [fornecedores, setFornecedores] = useState([]);
+  const [buscaFornecedor, setBuscaFornecedor] = useState("");
   const [novoFornecedor, setNovoFornecedor] = useState(estadoInicialFornecedor);
-
   const [editarFornecedorId, setEditarFornecedorId] = useState(null);
   const [excluirFornecedorId, setExcluirFornecedorId] = useState(null);
   const [abrirModalExcluir, setAbrirModalExcluir] = useState(false);
 
+  const fornecedoresFiltrados = fornecedores.filter((f) =>
+  f.fornecedor.toLowerCase().includes(buscaFornecedor.toLowerCase())
+);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const itensPorPagina = 15;
+
+  const indexUltimo = paginaAtual * itensPorPagina;
+  const indexPrimeiro = indexUltimo - itensPorPagina;
+  const fornecedoresPagina = fornecedoresFiltrados.slice(indexPrimeiro, indexUltimo);
+  const totalPaginas = Math.ceil(fornecedoresFiltrados.length / itensPorPagina);
+
+  const mudarPagina = (numero) => {
+  if (numero < 1) numero = 1;
+  if (numero > totalPaginas) numero = totalPaginas;
+  setPaginaAtual(numero);
+};
+
+
+
   const API_URL = "http://localhost:8080/api/fornecedores";
 
-  // Buscar fornecedores do backend
   useEffect(() => {
     fetchFornecedores();
   }, []);
@@ -42,7 +60,7 @@ export default function CadastroFornecedores() {
     }
   };
 
-  // Função para aplicar máscaras
+
   const aplicarMascara = (name, value) => {
     if (name === "telefone") {
       return value
@@ -69,7 +87,6 @@ export default function CadastroFornecedores() {
     return value;
   };
 
-  // Buscar endereço ao digitar CEP
   const buscarEndereco = async (cep) => {
     const cepLimpo = cep.replace(/\D/g, "");
     if (cepLimpo.length === 8) {
@@ -91,23 +108,30 @@ export default function CadastroFornecedores() {
     }
   };
 
-  // Função handleChange
+ 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const novoValor = type === "checkbox" ? checked : aplicarMascara(name, value);
+
+    let novoValor;
+
+    if (type === "checkbox") {
+      novoValor = checked;
+    } else if (name === "status") {
+      novoValor = value === "true"; 
+    } else {
+      novoValor = aplicarMascara(name, value);
+    }
 
     setNovoFornecedor((prev) => ({ ...prev, [name]: novoValor }));
 
     if (name === "cep") buscarEndereco(value);
   };
 
-  // Salvar ou editar fornecedor
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const fornecedorParaAPI = {
-      ...novoFornecedor,
-      status: novoFornecedor.status ? "ATIVO" : "INATIVO", // Garantindo que o status vai como string para o backend
+      ...novoFornecedor
     };
 
     try {
@@ -137,7 +161,6 @@ export default function CadastroFornecedores() {
     }
   };
 
-  // Abrir modal para editar fornecedor
   const handleEditar = (fornecedor) => {
     setEditarFornecedorId(fornecedor.id);
     setNovoFornecedor({
@@ -151,18 +174,16 @@ export default function CadastroFornecedores() {
       bairro: fornecedor.bairro || "",
       logradouro: fornecedor.logradouro || "",
       numero: fornecedor.numero || "",
-      status: fornecedor.status === "ATIVO" || fornecedor.status === true, // Garantindo que seja um booleano
+      status: fornecedor.status === "ATIVO" || fornecedor.status === true,
     });
     setAbrirModal(true);
   };
 
-  // Abrir modal de confirmação para excluir
   const handleExcluir = (id) => {
     setExcluirFornecedorId(id);
     setAbrirModalExcluir(true);
   };
 
-  // Confirmar exclusão do fornecedor
   const confirmarExcluir = async () => {
     try {
       const res = await fetch(`${API_URL}/${excluirFornecedorId}`, {
@@ -191,19 +212,33 @@ export default function CadastroFornecedores() {
         <h1>Fornecedores</h1>
       </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          setNovoFornecedor(estadoInicialFornecedor);
-          setEditarFornecedorId(null);
-          setAbrirModal(true);
-        }}
-        className="cursor-pointer border p-2 rounded-md bg-blue-500 text-white mt-2"
-      >
-        Novo Fornecedor
-      </button>
+    <div className="flex items-center justify-between mt-4 flex-wrap gap-2">
+  <input
+    type="text"
+    placeholder="Buscar fornecedor por nome..."
+    value={buscaFornecedor}
+    onChange={(e) => {
+    setBuscaFornecedor(e.target.value);
+    setPaginaAtual(1); 
+}}
 
-      {/* Modal Cadastro / Edição */}
+    className="border rounded-md p-2 w-64"
+  />
+
+  <button
+    type="button"
+    onClick={() => {
+      setNovoFornecedor(estadoInicialFornecedor);
+      setEditarFornecedorId(null);
+      setAbrirModal(true);
+    }}
+    className="cursor-pointer border p-2 rounded-md bg-blue-500 text-white"
+  >
+    Novo Fornecedor
+  </button>
+</div>
+
+      {/* Modal de Cadastro/Edição */}
       {abrirModal && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
@@ -240,6 +275,7 @@ export default function CadastroFornecedores() {
                 </div>
               ))}
 
+              {/* Campo de Status com Radio Buttons */}
               <div className="flex flex-col gap-2 mt-2">
                 <label className="block font-medium text-gray-700">Status</label>
                 <div className="flex items-center gap-6">
@@ -249,10 +285,8 @@ export default function CadastroFornecedores() {
                       name="status"
                       value="true"
                       checked={novoFornecedor.status === true}
-                      onChange={() =>
-                        setNovoFornecedor((prev) => ({ ...prev, status: true }))
-                      }
-                      className="w-4 h-4 text-green-700 border-gray-300 focus:ring-green-600"
+                      onChange={handleChange}
+                      className="w-4 h-4"
                     />
                     <span>Ativo</span>
                   </label>
@@ -263,10 +297,8 @@ export default function CadastroFornecedores() {
                       name="status"
                       value="false"
                       checked={novoFornecedor.status === false}
-                      onChange={() =>
-                        setNovoFornecedor((prev) => ({ ...prev, status: false }))
-                      }
-                      className="w-4 h-4 text-gray-500 border-gray-300 focus:ring-gray-500"
+                      onChange={handleChange}
+                      className="w-4 h-4"
                     />
                     <span>Inativo</span>
                   </label>
@@ -298,7 +330,7 @@ export default function CadastroFornecedores() {
         </div>
       )}
 
-      {/* Modal Confirmação Exclusão */}
+      {/* Modal de Exclusão */}
       {abrirModalExcluir && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
@@ -323,7 +355,7 @@ export default function CadastroFornecedores() {
         </div>
       )}
 
-      {/* Tabela */}
+      {/* Tabela de Fornecedores */}
       <div className="mt-6 overflow-x-auto">
         <table className="w-full border-collapse min-w-[900px]">
           <thead>
@@ -344,7 +376,7 @@ export default function CadastroFornecedores() {
           </thead>
 
           <tbody>
-            {fornecedores.map((u) => (
+            {fornecedoresPagina.map((u) => (
               <tr key={u.id} className="border-t hover:bg-gray-50">
                 <td className="p-2">{u.fornecedor}</td>
                 <td className="p-2">{u.email}</td>
@@ -414,6 +446,40 @@ export default function CadastroFornecedores() {
             ))}
           </tbody>
         </table>
+        {totalPaginas > 1 && (
+  <div className="flex justify-center items-center gap-2 mt-4 select-none">
+    <button
+      onClick={() => mudarPagina(paginaAtual - 1)}
+      disabled={paginaAtual === 1}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      &lt; Anterior
+    </button>
+
+    {[...Array(totalPaginas)].map((_, i) => {
+      const numeroPagina = i + 1;
+      return (
+        <button
+          key={numeroPagina}
+          onClick={() => mudarPagina(numeroPagina)}
+          className={`px-3 py-1 border rounded ${
+            paginaAtual === numeroPagina ? "bg-blue-300" : ""
+          }`}
+        >
+          {numeroPagina}
+        </button>
+      );
+    })}
+
+    <button
+      onClick={() => mudarPagina(paginaAtual + 1)}
+      disabled={paginaAtual === totalPaginas}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Próxima &gt;
+    </button>
+  </div>
+)}
       </div>
     </>
   );
