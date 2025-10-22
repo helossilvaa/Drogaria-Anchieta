@@ -1,17 +1,11 @@
-import{
-    listarEstoque,
-    obterEstoquePorID,
-    atualizarEstoque,
-    deletarEstoque,
-    criarEstoque
-} from "../models/estoque_Matriz.js";
+import{criarEstoqueMatriz, listarEstoqueMatriz, obterEstoqueMatrizPorID, atualizarEstoqueMatriz, deletarEstoqueMatriz} from "../models/estoqueMatriz.js";
 
-const criarEstoqueController = async (req, res) => {
+const criarEstoqueMatrizController = async (req, res) => {
     try{
         const {id, produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao} = req.body;
-        const estoqueData = {id, produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao};
+        const estoqueMatrizData = {id, produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao};
 
-        await criarEstoque (estoqueData);
+        await criarEstoqueMatriz (estoqueMatrizData);
         res.status(201).json({mensagem: 'Estoque matriz criada com sucesso!'});
     }catch (error){
         console.error('Erro ao criar estoque metriz: ', error);
@@ -19,41 +13,41 @@ const criarEstoqueController = async (req, res) => {
     }
 }
 
-const listarEstoqueController = async (req, res) => {
+const listarEstoqueMatrizController = async (req, res) => {
     try {
-        const estoque = await listarEstoque();
-        res.status(200).json(estoque);
+        const estoqueMatriz = await listarEstoqueMatriz();
+        res.status(200).json(estoqueMatriz);
     }catch (error) {
         console.error('Erro ao listar estoque matriz: ', error);
         res.status(500).json({mensagem: 'Erro ao listar estoque matriz'});
     }
 };
 
-const obterEstoquePorIDController = async (req, res) => {
+const obterEstoqueMatrizPorIDController = async (req, res) => {
     try{
         const {id} = req.params;
-        const estoque = await obterEstoquePorID(id);
+        const estoqueMatriz = await obterEstoqueMatrizPorID(id);
 
-        if (!estoque){
-            return res.status(404).json({mensagem: 'Estoque matriz não encontrada'});
+        if (!estoqueMatriz){
+            return res.status(404).json({mensagem: 'Estoque matriz não encontrado'});
         }
 
-        res.status(200).json(estoque);
+        res.status(200).json(estoqueMatriz);
     }catch (error){
         console.error ('Erro ao onter estoque matriz por ID: ', error);
         res.status(500).json({mensagem:'Erro ao obter estoque matriz'});
     }
 };
 
-const deletarEstoqueController = async (req, res) => {
+const deletarEstoqueMatrizController = async (req, res) => {
     try{
         const {id} = req.params;
-        const estoque = await obterEstoquePorID(id);
+        const estoqueMatriz = await obterEstoqueMatrizPorID(id);
 
-        if(!estoque){
+        if(!estoqueMatriz){
             return res.status(404).json({mensagem: 'Estoque matriz não encontrado'});
         }
-        await deletarEstoque(id);
+        await deletarEstoqueMatriz(id);
         res.status(200).json({mensagem: 'Estoque matriz deletada com sucesso!'});
     }catch (error){
         console.error('Erro ao deletar estoque matriz: ', error);
@@ -61,18 +55,18 @@ const deletarEstoqueController = async (req, res) => {
     }
 };
 
-const atualizarEstoqueController = async (req, res) =>{
+const atualizarEstoqueMatrizController = async (req, res) =>{
     try{
         const {id} = req.params;
         const {produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao} = req.body;
 
-        const estoqueExistir = await obterEstoquePorID(id);
-        if (!estoqueExistir){
+        const estoqueMatrizExistente = await obterEstoqueMatrizPorID(id);
+        if (!estoqueMatrizExistente){
             return res.status(404).json({mensagem: 'Estoque matriz não encontrada'});
         }
-        const estoqueData = {id, produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao};
+        const estoqueMatrizData = {id, produto_id, quantidade, estoque_minimo, estoque_maximo, locolizacao, lote_id, data_atualizacao};
 
-        await atualizarEstoque (id, estoqueData);
+        await atualizarEstoqueMatriz (id, estoqueMatrizData);
         res.status(200).json({mensagem:'estoque matriz atualizada'});
     }catch (error) {
         console.error('Erro ao atualizar: ', error);
@@ -81,9 +75,9 @@ const atualizarEstoqueController = async (req, res) =>{
 };
 
 export{
-    criarEstoqueController,
-    listarEstoqueController,
-    obterEstoquePorIDController,
-    deletarEstoqueController,
-    atualizarEstoqueController
+    criarEstoqueMatrizController,
+    listarEstoqueMatrizController,
+    obterEstoqueMatrizPorIDController,
+    deletarEstoqueMatrizController,
+    atualizarEstoqueMatrizController
 };

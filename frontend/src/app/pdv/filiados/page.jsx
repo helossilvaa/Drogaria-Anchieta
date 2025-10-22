@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 
 export default function Filiados() {
+  //Constantes utilizadas nas funcionalidades do código
   const [abrirModal, setAbrirModal] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
+  const [buscaCPF, setBuscaCPF] = useState("");
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const itensPorPagina = 5;
+  const itensPorPagina = 15;
   const [novoUsuario, setNovoUsuario] = useState({
     nome: "",
     email: "",
@@ -19,6 +21,7 @@ export default function Filiados() {
     bairro: "",
     logradouro: "",
     numero: "",
+    tiposdescontos: "",
   });
 
   const API_URL = "http://localhost:8080/api/filiados";
@@ -38,13 +41,15 @@ export default function Filiados() {
     }
   };
 
- // Cálculo dos usuários que vão aparecer na página atual
+  // Cálculo dos usuários que vão aparecer na página atual
   const indexUltimo = paginaAtual * itensPorPagina;
   const indexPrimeiro = indexUltimo - itensPorPagina;
-  const usuariosPagina = usuarios.slice(indexPrimeiro, indexUltimo);
-
+  const usuariosFiltrados = usuarios.filter((u) =>
+    u.cpf?.toLowerCase().includes(buscaCPF.toLowerCase())
+  );
+  const usuariosPagina = usuariosFiltrados.slice(indexPrimeiro, indexUltimo);
   // Calcular total de páginas
-  const totalPaginas = Math.ceil(usuarios.length / itensPorPagina);
+  const totalPaginas = Math.ceil(usuariosFiltrados.length / itensPorPagina);
 
   // Função para mudar página
   const mudarPagina = (numero) => {
@@ -55,63 +60,67 @@ export default function Filiados() {
 
   // Atualizar estado dos inputs e ligar com a API
   const handleChange = async (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  // Atualiza o valor do input normalmente
-  setNovoUsuario((prev) => ({
-    ...prev,
-    [name]: name === "estado" ? value.toUpperCase() : value,
-  }));
+    // Atualiza o valor do input normalmente
+    setNovoUsuario((prev) => ({
+      ...prev,
+      [name]: name === "estado" ? value.toUpperCase() : value,
+    }));
 
-  // Se o campo alterado for o CEP e tiver 8 dígitos, chama o ViaCEP
-  if (name === "cep" && value.length === 8) {
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${value}/json/`);
-      const data = await res.json();
+    // Se o campo alterado for o CEP e tiver 8 dígitos, chama o ViaCEP
+    if (name === "cep" && value.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${value}/json/`);
+        const data = await res.json();
 
-      if (!data.erro) {
-        // Atualiza os campos complementares com os dados retornados
-        setNovoUsuario((prev) => ({
-          ...prev,
-          cidade: data.localidade || "",
-          estado: data.uf || "",
-          bairro: data.bairro || "",
-          logradouro: data.logradouro || "",
-        }));
-      } else {
-        alert("CEP não encontrado.");
-        // Limpa os campos complementares caso o CEP não exista
-        setNovoUsuario((prev) => ({
-          ...prev,
-          cidade: "",
-          estado: "",
-          bairro: "",
-          logradouro: "",
-        }));
+        if (!data.erro) {
+          // Atualiza os campos complementares com os dados retornados
+          setNovoUsuario((prev) => ({
+            ...prev,
+            cidade: data.localidade || "",
+            estado: data.uf || "",
+            bairro: data.bairro || "",
+            logradouro: data.logradouro || "",
+          }));
+        } else {
+          alert("CEP não encontrado.");
+          // Limpa os campos complementares caso o CEP não exista
+          setNovoUsuario((prev) => ({
+            ...prev,
+            cidade: "",
+            estado: "",
+            bairro: "",
+            logradouro: "",
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
       }
-    } catch (error) {
-      console.error("Erro ao buscar CEP:", error);
     }
-  }
-};
+  };
 
   // Enviar usuário novo ao backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validações no frontend
+    //CPF deve ter 11 dígitos numéricos
     if (novoUsuario.cpf.length !== 11) {
       alert("CPF deve conter exatamente 11 dígitos.");
       return;
     }
+    //Telefone deve ter 9 dígitos numéricos
     if (novoUsuario.telefone.length !== 9) {
       alert("Telefone deve conter exatamente 9 dígitos.");
       return;
     }
+    //CEP deve ter 8 dígitos numéricos
     if (novoUsuario.cep.length !== 8) {
       alert("CEP deve conter exatamente 8 dígitos.");
       return;
     }
+    //Estado deve ter duas letras maiúsculas
     if (novoUsuario.estado.length !== 2) {
       alert("Estado deve ser uma sigla de 2 caracteres.");
       return;
@@ -150,29 +159,51 @@ export default function Filiados() {
         bairro: "",
         logradouro: "",
         numero: "",
+        tiposdescontos: "",
       });
       fetchUsuarios();
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
-    }
+    } catch (err) {
+  console.error("Erro ao cadastrar usuário:", err);
+  alert(err.message || "Erro ao cadastrar usuário.");
+}
   };
 
   return (
     <>
+      {/*Título da página*/}
       <div>
         <h1>USUÁRIOS DO PROGRAMA DE FIDELIDADE</h1>
       </div>
 
+      {/*Botão de cadastrar novo usuário*/}
       <button
         type="button"
         onClick={() => setAbrirModal(true)}
         className="cursor-pointer border p-2 rounded-md bg-blue-500 text-white mt-2"
       >
-        Novo Usuário
+        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
+        </svg> Novo Usuário
       </button>
 
-      {/* Modal */}
+      {/*Barra de pesquisa dos usuários por CPF*/}
+      <div className="mt-4 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Buscar usuário por CPF..."
+          value={buscaCPF}
+          onChange={(e) => setBuscaCPF(e.target.value)}
+          className="border rounded-md p-2 w-64"
+        />
+        <button
+          onClick={() => setPaginaAtual(1)}
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300"
+        >
+          Pesquisar
+        </button>
+      </div>
+
+      {/* Modal de novo usuário*/}
       {abrirModal && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
@@ -191,6 +222,7 @@ export default function Filiados() {
                 ["bairro", "Bairro", "text"],
                 ["logradouro", "Logradouro", "text"],
                 ["numero", "Número", "number"],
+                ["tiposdescontos", "Tipo de Desconto", "number"],
               ].map(([name, label, type]) => (
                 <div key={name}>
                   <label>{label}</label>
@@ -225,78 +257,89 @@ export default function Filiados() {
         </div>
       )}
 
-      {/* Tabela */}
-      <div className="mt-6">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-red-300 text-left">
-              <th className="p-2">Nome</th>
-              <th className="p-2">E-mail</th>
-              <th className="p-2">Telefone</th>
-              <th className="p-2">CPF</th>
-              <th className="p-2">Data de nascimento</th>
-              <th className="p-2">CEP</th>
-              <th className="p-2">Cidade</th>
-              <th className="p-2">Estado</th>
-              <th className="p-2">Bairro</th>
-              <th className="p-2">Logradouro</th>
-              <th className="p-2">Número</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuariosPagina.map((u) => (
-              <tr key={u.id} className="border-t">
-                <td className="p-2">{u.nome}</td>
-                <td className="p-2">{u.email}</td>
-                <td className="p-2">{u.telefone}</td>
-                <td className="p-2">{u.cpf}</td>
-                <td className="p-2">{new Date(u.data_nascimento).toLocaleDateString()}</td>
-                <td className="p-2">{u.cep}</td>
-                <td className="p-2">{u.cidade}</td>
-                <td className="p-2">{u.estado}</td>
-                <td className="p-2">{u.bairro}</td>
-                <td className="p-2">{u.logradouro}</td>
-                <td className="p-2">{u.numero}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {usuariosFiltrados.length > 0 ? (
+        <>
+          {/* TABELA */}
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead className="bg-red-300">
+                <tr>
+                  <th className="p-2">Nome</th>
+                  <th className="p-2">E-mail</th>
+                  <th className="p-2">Telefone</th>
+                  <th className="p-2">CPF</th>
+                  <th className="p-2">Data de nascimento</th>
+                  <th className="p-2">CEP</th>
+                  <th className="p-2">Cidade</th>
+                  <th className="p-2">Estado</th>
+                  <th className="p-2">Bairro</th>
+                  <th className="p-2">Logradouro</th>
+                  <th className="p-2">Número</th>
+                  <th className="p-2">Tipo de Desconto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usuariosPagina.map((u) => (
+                  <tr key={u.id} className="border-t">
+                    <td className="p-2">{u.nome}</td>
+                    <td className="p-2">{u.email}</td>
+                    <td className="p-2">{u.telefone}</td>
+                    <td className="p-2">{u.cpf}</td>
+                    <td className="p-2">
+                      {new Date(u.data_nascimento).toLocaleDateString()}
+                    </td>
+                    <td className="p-2">{u.cep}</td>
+                    <td className="p-2">{u.cidade}</td>
+                    <td className="p-2">{u.estado}</td>
+                    <td className="p-2">{u.bairro}</td>
+                    <td className="p-2">{u.logradouro}</td>
+                    <td className="p-2">{u.numero}</td>
+                    <td className="p-2">{u.tiposdescontos}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-       {/* Paginação */}
-      <div className="flex justify-center items-center gap-2 mt-4 select-none">
-        <button
-          onClick={() => mudarPagina(paginaAtual - 1)}
-          disabled={paginaAtual === 1}
-          className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-        >
-          &lt; Anterior
-        </button>
-
-        {/* Mostrar os números das páginas: 1, 2, 3 ... totalPaginas */}
-        {[...Array(totalPaginas)].map((_, i) => {
-          const numeroPagina = i + 1;
-          return (
+          {/* PAGINAÇÃO */}
+          <div className="flex justify-center items-center gap-2 mt-4 select-none">
             <button
-              key={numeroPagina}
-              onClick={() => mudarPagina(numeroPagina)}
-              className={`px-3 py-1 border rounded ${
-                paginaAtual === numeroPagina ? "bg-red-300" : ""
-              }`}
+              onClick={() => mudarPagina(paginaAtual - 1)}
+              disabled={paginaAtual === 1}
+              className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
             >
-              {numeroPagina}
+              &lt; Anterior
             </button>
-          );
-        })}
 
-        <button
-          onClick={() => mudarPagina(paginaAtual + 1)}
-          disabled={paginaAtual === totalPaginas}
-          className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-        >
-          Próxima &gt;
-        </button>
-      </div>
+            {[...Array(totalPaginas)].map((_, i) => {
+              const numeroPagina = i + 1;
+              return (
+                <button
+                  key={numeroPagina}
+                  onClick={() => mudarPagina(numeroPagina)}
+                  className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
+                    }`}
+                >
+                  {numeroPagina}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => mudarPagina(paginaAtual + 1)}
+              disabled={paginaAtual === totalPaginas}
+              className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+            >
+              Próxima &gt;
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="text-center text-gray-500 mt-6 text-lg">
+          Nenhum usuário encontrado para o CPF informado.
+        </p>
+      )}
+
     </>
   );
 }

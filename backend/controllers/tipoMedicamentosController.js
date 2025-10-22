@@ -25,8 +25,8 @@ const listarTiposDeMedicamentosController = async (req, res) => {
         const equipamentos = await listarTiposDeMedicamentos();
         res.status(200).json(equipamentos);
     } catch (error) {
-        console.error('Erro ao listar equipamentos no sistema: ', error);
-        res.status(500).json({ mensagem: 'Erro ao listar equipamentos no sistema' });
+        console.error('Erro ao listar medicamentos no sistema: ', error);
+        res.status(500).json({ mensagem: 'Erro ao listar medicamentos no sistema' });
     }
 };
 
@@ -48,7 +48,7 @@ const obterTiposDeMedicamentosPorIdController = async (req, res) => {
 };
 
 
-const atualizarEquipamentoController = async (req, res) => {
+const atualizarTipoDeMedicamentoController = async (req, res) => {
     try {
         const { id } = req.params;
         const { tarja } = req.body;
@@ -82,13 +82,13 @@ const deletarTipoDeMedicamentoController = async (req, res) => {
         }
 
         await deletarTipoDeMedicamento(id);
-        res.status(200).json({ mensagem: 'Equipamento deletado com sucesso!!!' });
+        res.status(200).json({ mensagem: 'Medicamento deletado com sucesso!!!' });
 
     } catch (error) {
-        console.error('Erro ao deletar equipamento: ', error);
-        res.status(500).json({ mensagem: 'Erro ao deletar equipamento' });
+        console.error('Erro ao deletar medicamento: ', error);
+        res.status(500).json({ mensagem: 'Erro ao deletar medicamento' });
     }
 };
 
 
-export { criarTipoDeMedicamentoController, listarTiposDeMedicamentosController, obterTiposDeMedicamentosPorIdController, atualizarEquipamentoController, deletarTipoDeMedicamentoController};
+export { criarTipoDeMedicamentoController, listarTiposDeMedicamentosController, obterTiposDeMedicamentosPorIdController, atualizarTipoDeMedicamentoController, deletarTipoDeMedicamentoController};

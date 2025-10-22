@@ -19,7 +19,7 @@ CREATE TABLE usuarios (
     senha VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     setor_id INT NOT NULL,
-    endereco VARCHAR(250) NOT NULL,
+    logradouro VARCHAR(250) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     estado CHAR(2) NOT NULL,
     cep VARCHAR(9) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE unidade (
     tipo ENUM('matriz', 'franquia' ) DEFAULT NULL,
     nome VARCHAR(250) NOT NULL,
     cnpj VARCHAR(14) NOT NULL,
-    endereco VARCHAR(250) NOT NULL,
+    logradouro VARCHAR(250) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     estado CHAR(2) NOT NULL,
     cep VARCHAR(9) NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE fornecedores (
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     fornecedor VARCHAR(400) NOT NULL,
     cnpj INT NOT NULL,
-    endereco VARCHAR(250) NOT NULL,
+    logradouro VARCHAR(250) NOT NULL,
     cidade VARCHAR(100),
     estado CHAR(2),
     cep VARCHAR(9),
@@ -163,22 +163,6 @@ CREATE TABLE estoque_franquia (
     FOREIGN KEY (estoque_matriz_id) REFERENCES estoque_matriz(id)
 );
 
-CREATE TABLE filiados (
-	id INT NOT NULL PRIMARY KEY auto_increment,
-    nome VARCHAR(250) NOT NULL,
-    cpf VARCHAR(11)  NOT NULL,
-    data_nascimento DATE NOT NULL,
-    email VARCHAR(250) NOT NULL,
-    telefone VARCHAR(9) NOT NULL,
-    cep VARCHAR(9) NOT NULL,
-    cidade VARCHAR(100) NOT NULL,
-    estado CHAR(2) NOT NULL,
-    numero INT NOT NULL,
-    rua VARCHAR(200) NOT NULL,
-    bairro VARCHAR(200) NOT NULL
-);
-
-
 CREATE TABLE parcerias (
 	id INT NOT NULL PRIMARY KEY auto_increment,
     parceiro VARCHAR(250) NOT NULL
@@ -195,6 +179,24 @@ CREATE TABLE descontos (
     nome VARCHAR(50) NOT NULL,
 	desconto DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (tipodesconto_id) REFERENCES tiposdescontos (id)
+);
+
+CREATE TABLE filiados (
+	id INT NOT NULL PRIMARY KEY auto_increment,
+    nome VARCHAR(250) NOT NULL,
+    cpf VARCHAR(11)  NOT NULL,
+    data_nascimento DATE NOT NULL,
+    email VARCHAR(250) NOT NULL,
+    telefone VARCHAR(9) NOT NULL,
+    cep VARCHAR(9) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    estado CHAR(2) NOT NULL,
+    numero INT NOT NULL,
+    logradouro VARCHAR(200) NOT NULL,
+    bairro VARCHAR(200) NOT NULL,
+    desconto_id INT NOT NULL,
+    FOREIGN KEY (desconto_id) REFERENCES descontos (id)
+	
 );
 
 CREATE TABLE servicos (
@@ -284,3 +286,13 @@ INSERT INTO tipos_pagamento (tipo) VALUES
 
 INSERT INTO unidade_medida (sigla) VALUES 
 ('ml'), ('l'), ('g'), ('mg'), ('unidade'); 
+
+INSERT INTO setor (setor) VALUES 
+('matriz'), ('gerente'), ('pdv'); 
+
+INSERT INTO usuarios (registro, cpf, telefone, data_nascimento, genero, nome,
+ senha, email, setor_id, logradouro, cidade, estado, cep, numero) VALUES 
+('12345678', '54470206941', '1192222222', '09-12-2007', 'feminino', 
+'heloise', '$2b$10$dgYjcImDdSpbgQD/7BBRre.fGZohwfG24FwQW9jfg86MKCmnRSx5.', 'heloise@gmail.com', '1', 'rua joao bosco', 
+'sao bernardo do campo', 'sp', '09730480', '12');
+
