@@ -37,7 +37,7 @@ export function LoginForm() {
           if (setor === "gerente") router.push("/gerente/dashboard");
           else if (setor === "matriz") router.push("/matriz/dashboard");
           else router.push("/pdv/dashboard");
-        }, 1000);
+        }, 100);
       } else {
         setErro(data.error || "Credenciais inválidas");
         toast.error(data.error || "Credenciais inválidas");
@@ -52,38 +52,56 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col md:flex-row h-screen">
       <ToastContainer position="top-right" autoClose={3000} pauseOnHover={false} theme="light" />
 
-      <div className="w-1/2 bg-gradient-to-r from-teal-300 to-red-300">
-      <div className="container flex justify-end items-center">
-        <h2 className="bg-white w-50 p-4 rounded-l-full font-bold text-center">LOGIN</h2>
+      {/* Lado esquerdo colorido - só aparece em md+ */}
+      <div className="hidden md:flex w-1/2 bg-gradient-to-r from-teal-300 to-red-300 items-center">
+        <div className="container flex justify-end items-center">
+          <h2 className="bg-white w-50 p-4 rounded-l-full font-bold text-center">LOGIN</h2>
+        </div>
       </div>
-      </div>
 
-      <div className="w-1/2 flex flex-col justify-center items-center p-10">
-        <Image src="/logo.png" width={400} height={200} alt="Logo Drogaria Anchieta" />
+      {/* Formulário de login */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-10">
+        <Image
+          src="/logo.png"
+          width={250}
+          height={150}
+          alt="Logo Drogaria Anchieta"
+          className="mb-6"
+        />
 
-        <form onSubmit={login} className="w-full max-w-md mt-8 space-y-6">
-          <FloatingInput
-            id="email"
-            type="email"
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <FloatingInput
-            id="senha"
-            type="password"
-            label="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-          />
+        <form
+          onSubmit={login}
+          className="w-full max-w-md space-y-6 flex flex-col justify-center items-center"
+        >
+          <div className="w-full space-y-6">
+            <FloatingInput
+              id="email"
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <FloatingInput
+              id="senha"
+              type="password"
+              label="Senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required
+            />
+          </div>
 
-
-          <Button type="submit" variant="verde" size = "lg"className="w-full mt-4" disabled={loading}>
+          <Button
+            type="submit"
+            variant="verde"
+            size="verde"
+            className="w-full mt-4"
+            disabled={loading}
+          >
             {loading ? "Entrando..." : "Entrar"}
           </Button>
         </form>

@@ -7,6 +7,7 @@ export default function Filiados() {
   const [abrirModal, setAbrirModal] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [buscaCPF, setBuscaCPF] = useState("");
+  const [tiposDescontos, setTiposDescontos] = useState([]);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 15;
   const [novoUsuario, setNovoUsuario] = useState({
@@ -21,7 +22,7 @@ export default function Filiados() {
     bairro: "",
     logradouro: "",
     numero: "",
-    tiposdescontos: "",
+    tipodesconto: "",
   });
 
   const API_URL = "http://localhost:8080/api/filiados";
@@ -29,6 +30,7 @@ export default function Filiados() {
   // Buscar usuários do backend
   useEffect(() => {
     fetchUsuarios();
+    fetchTiposDescontos();
   }, []);
 
   const fetchUsuarios = async () => {
@@ -38,6 +40,16 @@ export default function Filiados() {
       setUsuarios(data);
     } catch (error) {
       console.error("Erro ao carregar usuários:", error);
+    }
+  };
+
+  const fetchTiposDescontos = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/tiposdescontos");
+      const data = await res.json();
+      setTiposDescontos(data);
+    } catch (error) {
+      console.error("Erro ao carregar tipos de descontos:", error);
     }
   };
 
@@ -126,7 +138,7 @@ export default function Filiados() {
       return;
     }
 
-    // Verificar se já existe usuário com mesmo CPF localmente (opcional, ajuda a evitar chamada desnecessária)
+    // Verificar se já existe usuário com mesmo CPF localmente
     const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
     if (existe) {
       alert("Usuário com este CPF já está cadastrado.");
@@ -141,8 +153,15 @@ export default function Filiados() {
       });
 
       if (!res.ok) {
-        const erro = await res.json();
-        throw new Error(erro.message || "Erro ao salvar usuário");
+        let erroMsg = "Erro ao salvar usuário";
+        try {
+          const erro = await res.json();
+          erroMsg = erro.message || JSON.stringify(erro) || erroMsg;
+        } catch {
+          const texto = await res.text();
+          erroMsg = texto || erroMsg;
+        }
+        throw new Error(erroMsg);
       }
 
       alert("Usuário cadastrado com sucesso!");
@@ -159,13 +178,13 @@ export default function Filiados() {
         bairro: "",
         logradouro: "",
         numero: "",
-        tiposdescontos: "",
+        tipodesconto: "",
       });
       fetchUsuarios();
     } catch (err) {
-  console.error("Erro ao cadastrar usuário:", err);
-  alert(err.message || "Erro ao cadastrar usuário.");
-}
+      console.error("Erro ao cadastrar usuário:", err);
+      alert(err.message || "Erro ao cadastrar usuário.");
+    }
   };
 
   return (
@@ -222,7 +241,6 @@ export default function Filiados() {
                 ["bairro", "Bairro", "text"],
                 ["logradouro", "Logradouro", "text"],
                 ["numero", "Número", "number"],
-                ["tiposdescontos", "Tipo de Desconto", "number"],
               ].map(([name, label, type]) => (
                 <div key={name}>
                   <label>{label}</label>
@@ -236,6 +254,25 @@ export default function Filiados() {
                   />
                 </div>
               ))}
+
+              {/*Função de listar os tipos de desconto*/}
+              <div>
+                <label>Tipo de Desconto</label>
+                <select
+                  name="tipodesconto"
+                  value={novoUsuario.tipodesconto}
+                  onChange={handleChange}
+                  className="border rounded-md p-2 w-full"
+                  required
+                >
+                  <option value="">Selecione um tipo</option>
+                  {tiposDescontos.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.tipo}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="flex justify-between mt-4">
                 <button
@@ -257,88 +294,93 @@ export default function Filiados() {
         </div>
       )}
 
-      {usuariosFiltrados.length > 0 ? (
-        <>
-          {/* TABELA */}
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead className="bg-red-300">
-                <tr>
-                  <th className="p-2">Nome</th>
-                  <th className="p-2">E-mail</th>
-                  <th className="p-2">Telefone</th>
-                  <th className="p-2">CPF</th>
-                  <th className="p-2">Data de nascimento</th>
-                  <th className="p-2">CEP</th>
-                  <th className="p-2">Cidade</th>
-                  <th className="p-2">Estado</th>
-                  <th className="p-2">Bairro</th>
-                  <th className="p-2">Logradouro</th>
-                  <th className="p-2">Número</th>
-                  <th className="p-2">Tipo de Desconto</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuariosPagina.map((u) => (
-                  <tr key={u.id} className="border-t">
-                    <td className="p-2">{u.nome}</td>
-                    <td className="p-2">{u.email}</td>
-                    <td className="p-2">{u.telefone}</td>
-                    <td className="p-2">{u.cpf}</td>
-                    <td className="p-2">
-                      {new Date(u.data_nascimento).toLocaleDateString()}
-                    </td>
-                    <td className="p-2">{u.cep}</td>
-                    <td className="p-2">{u.cidade}</td>
-                    <td className="p-2">{u.estado}</td>
-                    <td className="p-2">{u.bairro}</td>
-                    <td className="p-2">{u.logradouro}</td>
-                    <td className="p-2">{u.numero}</td>
-                    <td className="p-2">{u.tiposdescontos}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* PAGINAÇÃO */}
-          <div className="flex justify-center items-center gap-2 mt-4 select-none">
-            <button
-              onClick={() => mudarPagina(paginaAtual - 1)}
-              disabled={paginaAtual === 1}
-              className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-            >
-              &lt; Anterior
-            </button>
-
-            {[...Array(totalPaginas)].map((_, i) => {
-              const numeroPagina = i + 1;
-              return (
-                <button
-                  key={numeroPagina}
-                  onClick={() => mudarPagina(numeroPagina)}
-                  className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
-                    }`}
-                >
-                  {numeroPagina}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => mudarPagina(paginaAtual + 1)}
-              disabled={paginaAtual === totalPaginas}
-              className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-            >
-              Próxima &gt;
-            </button>
-          </div>
-        </>
-      ) : (
+      {usuarios.length === 0 ? (
         <p className="text-center text-gray-500 mt-6 text-lg">
-          Nenhum usuário encontrado para o CPF informado.
+          Nenhum usuário encontrado
         </p>
-      )}
+      ) :
+        usuariosFiltrados.length > 0 ? (
+          <>
+            {/* TABELA */}
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-red-300">
+                  <tr>
+                    <th className="p-2">Nome</th>
+                    <th className="p-2">E-mail</th>
+                    <th className="p-2">Telefone</th>
+                    <th className="p-2">CPF</th>
+                    <th className="p-2">Data de nascimento</th>
+                    <th className="p-2">CEP</th>
+                    <th className="p-2">Cidade</th>
+                    <th className="p-2">Estado</th>
+                    <th className="p-2">Bairro</th>
+                    <th className="p-2">Logradouro</th>
+                    <th className="p-2">Número</th>
+                    <th className="p-2">Tipo de Desconto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuariosPagina.map((u) => (
+                    <tr key={u.id} className="border-t">
+                      <td className="p-2">{u.nome}</td>
+                      <td className="p-2">{u.email}</td>
+                      <td className="p-2">{u.telefone}</td>
+                      <td className="p-2">{u.cpf}</td>
+                      <td className="p-2">
+                        {new Date(u.data_nascimento).toLocaleDateString()}
+                      </td>
+                      <td className="p-2">{u.cep}</td>
+                      <td className="p-2">{u.cidade}</td>
+                      <td className="p-2">{u.estado}</td>
+                      <td className="p-2">{u.bairro}</td>
+                      <td className="p-2">{u.logradouro}</td>
+                      <td className="p-2">{u.numero}</td>
+                      <td className="p-2">{u.tipodesconto}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* PAGINAÇÃO */}
+            <div className="flex justify-center items-center gap-2 mt-4 select-none">
+              <button
+                onClick={() => mudarPagina(paginaAtual - 1)}
+                disabled={paginaAtual === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+              >
+                &lt; Anterior
+              </button>
+
+              {[...Array(totalPaginas)].map((_, i) => {
+                const numeroPagina = i + 1;
+                return (
+                  <button
+                    key={numeroPagina}
+                    onClick={() => mudarPagina(numeroPagina)}
+                    className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
+                      }`}
+                  >
+                    {numeroPagina}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => mudarPagina(paginaAtual + 1)}
+                disabled={paginaAtual === totalPaginas}
+                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+              >
+                Próxima &gt;
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-gray-500 mt-6 text-lg">
+            Nenhum usuário encontrado para o CPF informado.
+          </p>
+        )}
 
     </>
   );
