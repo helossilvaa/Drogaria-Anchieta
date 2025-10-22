@@ -8,7 +8,7 @@ export function FloatingInput({ label, ...props }) {
         />
         <label
           htmlFor={props.id}
-          className="absolute left-0 text-gray-400 text-sm transition-all
+          className="w-40 absolute left-0 text-gray-400 text-sm transition-all
                     
                      peer-placeholder-shown:text-base
                      peer-focus:-top-3 peer-focus:text-xs peer-focus:text-teal-500"

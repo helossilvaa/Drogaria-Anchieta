@@ -7,16 +7,12 @@ import {
   atualizarUsuarioController
 } from '../controllers/usuarioController.js';
 
-import {
-     cadastroUsuarioController 
-} from '../controllers/authController.js';
-
+import { cadastroUsuarioController } from '../controllers/authController.js';
 
 import authMiddleware from '../middlewares/authMiddleware.js';
  
 const router = express.Router();
  
-
 router.put('/:id/status', authMiddleware, mudarStatusFuncionarioController);
 
 router.options(':id/status', (req, res) => {
@@ -27,18 +23,19 @@ router.options(':id/status', (req, res) => {
 
 router.get('/:id', authMiddleware, obterUsuarioIdController);
 router.options('/:id', (req, res) => {
-    res.setHeader('Allow', 'GET, OPTIONS');
+    res.setHeader('Allow', 'GET, PUT, DELETE, OPTIONS');
     res.status(204).send();
 });
 
 router.post('/', authMiddleware, cadastroUsuarioController);
-router.delete('/', authMiddleware, deletarUsuarioController);
+router.delete('/:id', authMiddleware, deletarUsuarioController);
 
-router.put('/', authMiddleware, atualizarUsuarioController);
+router.put('/:id', authMiddleware, atualizarUsuarioController);
 
 router.get('/', authMiddleware, listarUsuariosController);
+
 router.options('/', (req, res) => {
-    res.setHeader('Allow', 'POST, GET, DELETE, PUT, OPTIONS');
+    res.setHeader('Allow', 'POST, GET,  OPTIONS');
     res.status(204).send();
 });
  
