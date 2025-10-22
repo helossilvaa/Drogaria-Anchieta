@@ -12,6 +12,7 @@ import abrirFechar_CaixaRotas from './routes/abrirFechar_CaixaRotas.js';
 import categoriaRotas from './routes/categoriaRotas.js';
 import filiadosRotas from './routes/filiadosRotas.js';
 
+
 dotenv.config();
 
 const app = express();
