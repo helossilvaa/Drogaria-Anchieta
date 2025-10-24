@@ -1,15 +1,8 @@
 import { Filiado } from "../models/filiados.js";
-<<<<<<< HEAD
- 
-export const criarFiliado = async (req, res) => {
-  console.log("Dados recebidos do frontend:", req.body);
- 
-=======
 
 export const criarFiliado = async (req, res) => {
   console.log("Dados recebidos do frontend:", req.body);
 
->>>>>>> 923594ebe936c766034a56217ada61022069175a
   try {
     const {
       nome,
@@ -25,11 +18,7 @@ export const criarFiliado = async (req, res) => {
       numero,
       tipodesconto
     } = req.body;
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> 923594ebe936c766034a56217ada61022069175a
+    
     //Verificação de campos obrigatórios
     const camposObrigatorios = {
       nome,
