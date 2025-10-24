@@ -18,7 +18,6 @@ export const criarFiliado = async (req, res) => {
       numero,
       tipodesconto
     } = req.body;
-    
     //Verificação de campos obrigatórios
     const camposObrigatorios = {
       nome,
