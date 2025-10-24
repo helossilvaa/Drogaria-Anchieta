@@ -34,9 +34,9 @@ export function LoginForm() {
         toast.success("Login realizado com sucesso!");
         const setor = data.usuario?.setor;
         setTimeout(() => {
-          if (setor === "gerente") router.push("/gerente/dashboard");
-          else if (setor === "matriz") router.push("/matriz/dashboard");
-          else router.push("/pdv/dashboard");
+          if (setor === "gerente") router.push("/gerente");
+          else if (setor === "matriz") router.push("/matriz");
+          else router.push("/pdv");
         }, 100);
       } else {
         setErro(data.error || "Credenciais inválidas");
