@@ -112,86 +112,69 @@ export default function Filiados() {
     }
   };
 
-  // Enviar usuário novo ao backend
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Validações no frontend
-    //CPF deve ter 11 dígitos numéricos
-    if (novoUsuario.cpf.length !== 11) {
-      alert("CPF deve conter exatamente 11 dígitos.");
-      return;
-    }
-    //Telefone deve ter 9 dígitos numéricos
-    if (novoUsuario.telefone.length !== 9) {
-      alert("Telefone deve conter exatamente 9 dígitos.");
-      return;
-    }
-    //CEP deve ter 8 dígitos numéricos
-    if (novoUsuario.cep.length !== 8) {
-      alert("CEP deve conter exatamente 8 dígitos.");
-      return;
-    }
-    //Estado deve ter duas letras maiúsculas
-    if (novoUsuario.estado.length !== 2) {
-      alert("Estado deve ser uma sigla de 2 caracteres.");
-      return;
-    }
+  // Validações no frontend
+  if (novoUsuario.cpf.length !== 11) {
+    alert("CPF deve conter exatamente 11 dígitos.");
+    return;
+  }
 
-    // Verificar se já existe usuário com mesmo CPF localmente
-    const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
-    if (existe) {
-      alert("Usuário com este CPF já está cadastrado.");
-      return;
-    }
+  // Verificar se já existe usuário com mesmo CPF localmente
+  const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
+  if (existe) {
+    alert("Usuário com este CPF já está cadastrado.");
+    return;
+  }
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novoUsuario),
-      });
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(novoUsuario),
+    });
 
-      if (!res.ok) {
-        let erroMsg = "Erro ao salvar usuário";
-        try {
-          const erro = await res.json();
-          erroMsg = erro.message || JSON.stringify(erro) || erroMsg;
-        } catch {
-          const texto = await res.text();
-          erroMsg = texto || erroMsg;
-        }
-        throw new Error(erroMsg);
+    if (!res.ok) {
+      let erroMsg = "Erro ao salvar usuário";
+      try {
+        const erro = await res.json();
+        erroMsg = erro.message || JSON.stringify(erro) || erroMsg;
+      } catch {
+        const texto = await res.text();
+        erroMsg = texto || erroMsg;
       }
-
-      alert("Usuário cadastrado com sucesso!");
-      setAbrirModal(false);
-      setNovoUsuario({
-        nome: "",
-        email: "",
-        telefone: "",
-        cpf: "",
-        data_nascimento: "",
-        cep: "",
-        cidade: "",
-        estado: "",
-        bairro: "",
-        logradouro: "",
-        numero: "",
-        tipodesconto: "",
-      });
-      fetchUsuarios();
-    } catch (err) {
-      console.error("Erro ao cadastrar usuário:", err);
-      alert(err.message || "Erro ao cadastrar usuário.");
+      throw new Error(erroMsg);
     }
-  };
+
+    alert("Usuário cadastrado com sucesso!");
+    setAbrirModal(false);
+    setNovoUsuario({
+      nome: "",
+      email: "",
+      telefone: "",
+      cpf: "",
+      data_nascimento: "",
+      cep: "",
+      cidade: "",
+      estado: "",
+      bairro: "",
+      logradouro: "",
+      numero: "",
+      tipodesconto: "",
+    });
+    fetchUsuarios();
+  } catch (err) {
+    console.error("Erro ao cadastrar usuário:", err);
+    alert(err.message || "Erro ao cadastrar usuário.");
+  }
+};
 
   return (
     <>
       {/*Título da página*/}
       <div>
-        <h1>USUÁRIOS DO PROGRAMA DE FIDELIDADE</h1>
+        <h1>FILIADOS</h1>
       </div>
 
       {/*Botão de cadastrar novo usuário*/}

@@ -44,12 +44,10 @@ export const criarFiliado = async (req, res) => {
       });
     }
 
-    //Verifica se já existe CPF cadastrado
+    // Verifica se já existe CPF cadastrado
     const existente = await Filiado.getByCPF(cpf);
     if (existente) {
-      return res
-        .status(400)
-        .json({ message: "Usuário já cadastrado com este CPF." });
+      return res.status(400).json({ message: "Usuário já cadastrado com este CPF." });
     }
 
     // Cria o novo registro
@@ -78,6 +76,7 @@ export const criarFiliado = async (req, res) => {
     });
   }
 };
+
 //Lista todos os filiados
 export const listarFiliados = async (req, res) => {
   try {
@@ -88,6 +87,7 @@ export const listarFiliados = async (req, res) => {
     return res.status(500).json({ message: "Erro ao listar usuários." });
   }
 };
+
 //Atualiza um filiado pelo ID
 export const atualizarFiliado = async (req, res) => {
   const { id } = req.params;

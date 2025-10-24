@@ -281,7 +281,7 @@ export default function Filiados() {
     <>
       {/*Título da página*/}
       <h1 className="text-xl font-bold mb-2">
-        USUÁRIOS DO PROGRAMA DE FIDELIDADE
+        FILIADOS
       </h1>
 
       {/*Botão de cadastrar novo usuário*/}
