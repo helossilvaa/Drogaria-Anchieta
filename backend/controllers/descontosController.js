@@ -1,6 +1,6 @@
 import { Descontos } from "../models/descontos.js";
 
-//Lista todos os descontos
+// Lista todos os descontos
 export const listarDescontos = async (req, res) => {
   try {
     const descontos = await Descontos.getAll();
@@ -11,7 +11,7 @@ export const listarDescontos = async (req, res) => {
   }
 };
 
-//Função para criar desconto
+// Criar novo desconto
 export const criarDesconto = async (req, res) => {
   try {
     const { tipodesconto_id, nome, desconto } = req.body;
@@ -21,7 +21,10 @@ export const criarDesconto = async (req, res) => {
     }
 
     const descontoExistente = await Descontos.getByNome(nome);
-    if (descontoExistente) {
+    if (
+      descontoExistente &&
+      descontoExistente.nome.toLowerCase() === nome.toLowerCase()
+    ) {
       return res.status(400).json({ message: "Já existe um desconto com esse nome." });
     }
 
@@ -32,5 +35,58 @@ export const criarDesconto = async (req, res) => {
   } catch (err) {
     console.error("Erro ao criar desconto:", err);
     return res.status(500).json({ message: "Erro ao criar desconto." });
+  }
+};
+
+// Atualizar desconto existente
+export const atualizarDesconto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tipodesconto_id, nome, desconto } = req.body;
+
+    if (!nome || !desconto || !tipodesconto_id) {
+      return res.status(400).json({ message: "Dados inválidos." });
+    }
+
+    const descontos = await Descontos.getAll();
+    const descontoExistente = descontos.find(d => d.id === parseInt(id));
+
+    if (!descontoExistente) {
+      return res.status(404).json({ message: "Desconto não encontrado." });
+    }
+
+    const duplicado = descontos.find(
+      d => d.nome.toLowerCase() === nome.toLowerCase() && d.id !== parseInt(id)
+    );
+
+    if (duplicado) {
+      return res.status(400).json({ message: "Já existe um desconto com esse nome." });
+    }
+
+    await Descontos.update(id, { tipodesconto_id, nome, desconto });
+
+    return res.status(200).json({ message: "Desconto atualizado com sucesso." });
+  } catch (err) {
+    console.error("Erro ao atualizar desconto:", err);
+    return res.status(500).json({ message: "Erro ao atualizar desconto." });
+  }
+};
+
+// Excluir desconto
+export const excluirDesconto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const descontoExistente = await Descontos.getAll();
+    const desconto = descontoExistente.find(d => d.id === parseInt(id));
+
+    if (!desconto) {
+      return res.status(404).json({ message: "Desconto não encontrado." });
+    }
+
+    await Descontos.delete(id);
+    return res.status(200).json({ message: "Desconto excluído com sucesso." });
+  } catch (err) {
+    console.error("Erro ao excluir desconto:", err);
+    return res.status(500).json({ message: "Erro ao excluir desconto." });
   }
 };

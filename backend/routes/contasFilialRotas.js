@@ -11,6 +11,7 @@ const router = express.Router();
 router.get('/conta', listarConta);
 router.post('/conta', criarConta);
 router.put('/conta/:id', editarConta);     
-router.delete('/conta/:id', excluirConta);    
+router.delete('/conta/:id', excluirConta); 
+
 
 export default router;
