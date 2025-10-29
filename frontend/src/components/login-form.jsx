@@ -37,7 +37,7 @@ export function LoginForm() {
           if (setor === "gerente") router.push("/gerente");
           else if (setor === "matriz") router.push("/matriz");
           else router.push("/pdv");
-        }, 100);
+        }, 1000);
       } else {
         setErro(data.error || "Credenciais inválidas");
         toast.error(data.error || "Credenciais inválidas");
@@ -53,16 +53,14 @@ export function LoginForm() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      <ToastContainer position="top-right" autoClose={3000} pauseOnHover={false} theme="light" />
-
-      {/* Lado esquerdo colorido - só aparece em md+ */}
+      <ToastContainer position="top-right" autoClose={2000} pauseOnHover={false} theme="light" />
       <div className="hidden md:flex w-1/2 bg-gradient-to-r from-teal-300 to-red-300 items-center">
         <div className="container flex justify-end items-center">
           <h2 className="bg-white w-50 p-4 rounded-l-full font-bold text-center">LOGIN</h2>
         </div>
       </div>
 
-      {/* Formulário de login */}
+      
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-10">
         <Image
           src="/logo.png"

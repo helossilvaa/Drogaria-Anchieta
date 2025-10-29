@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react";
-import {useState, useEffect} from 'react'
-import { LogOut, Settings, Check, ChevronsUpDown } from "lucide-react"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { LogOut, Settings, Check, ChevronsUpDown } from "lucide-react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -13,7 +13,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
@@ -21,87 +21,83 @@ import {
 } from "@/components/ui/popover";
 
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode"
-
+import { jwtDecode } from "jwt-decode";
 
 const menuItems = [
-  {
-    value: "configuracoes",
-    label: "Configurações",
-    icon: Settings,
-  },
-  {
-    value: "sair",
-    label: "Sair",
-    icon: LogOut,
-  },
-]
-
+  { value: "configuracoes", label: "Configurações", icon: Settings },
+  { value: "sair", label: "Sair", icon: LogOut },
+];
 
 function getInitials(name) {
-  if (!name) return ""
-  const parts = name.trim().split(" ")
-  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join("")
+  if (!name) return "";
+  const parts = name.trim().split(" ");
+  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join("");
 }
 
-export function ComboboxDemo({ userName = "Heloise Soares", userImage = null }) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+export function ComboboxDemo() {
+  
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
   const [dadosUsuario, setDadosUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-const API_URL = "http://localhost:8080";
-const router = useRouter();
+  const API_URL = "http://localhost:8080";
+  const router = useRouter();
 
-useEffect(() => {
-  const fetchUsuario = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/login");
-        return;
+  useEffect(() => {
+    const fetchUsuario = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          router.push("/");
+          return;
+        }
+
+        const decoded = jwtDecode(token);
+
+        if (!["matriz", "gerente", "pdv"].includes(decoded.setor)) {
+          router.push("/");
+          return;
+        }
+
+        if (decoded.exp < Date.now() / 1000) {
+          localStorage.removeItem("token");
+          setTimeout(() => router.push("/"), 3000);
+          return;
+        }
+
+        const id = decoded.id;
+
+        const res = await fetch(`${API_URL}/usuarios/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("Usuário não encontrado");
+
+        const data = await res.json();
+
+        setDadosUsuario({
+          nome: data.nome,
+          foto: data.foto || null,
+        });
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Erro ao carregar usuário:", err);
+        setError(err.message);
+        setLoading(false);
       }
+    };
 
-      const decoded = jwtDecode(token);
+    fetchUsuario();
+  }, [router]);
 
-      if (!["matriz", "gerente", "pdv"].includes(decoded.funcao)) {
-        router.push("/");
-        return;
-      }
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error}</div>;
 
-      if (decoded.exp < Date.now() / 1000) {
-        localStorage.removeItem("token");
-        toast.error("Seu login expirou.");
-        setTimeout(() => router.push("/login"), 3000);
-        return;
-      }
-
-      const id = decoded.id;
-
-      const res = await fetch(`${API_URL}/usuarios/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Usuário não encontrado");
-
-      const data = await res.json();
-
-      setDadosUsuario({
-        nome: data.nome,
-        foto: data.foto || getInitials
-      });
-
-      setLoading(false);
-    } catch (err) {
-      console.error("Erro ao carregar usuário:", err);
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  fetchUsuario();
-}, [router]);
+  const userName = dadosUsuario?.nome || "Usuário";
+  const userImage = dadosUsuario?.foto;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -112,7 +108,6 @@ useEffect(() => {
           aria-expanded={open}
           className="w-[220px] justify-between"
         >
-         
           <div className="flex items-center gap-2">
             {userImage ? (
               <Image
@@ -134,22 +129,19 @@ useEffect(() => {
         </Button>
       </PopoverTrigger>
 
-      {/* Menu dropdown */}
       <PopoverContent className="w-[220px] p-0">
         <Command>
-          <CommandInput placeholder="Buscar..." className="h-9" />
           <CommandList>
-            <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
             <CommandGroup>
               {menuItems.map((item) => {
-                const Icon = item.icon
+                const Icon = item.icon;
                 return (
                   <CommandItem
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue)
-                      setOpen(false)
+                      setValue(currentValue === value ? "" : currentValue);
+                      setOpen(false);
                     }}
                   >
                     <Icon className="mr-2 h-4 w-4" />
@@ -161,12 +153,12 @@ useEffect(() => {
                       )}
                     />
                   </CommandItem>
-                )
+                );
               })}
             </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

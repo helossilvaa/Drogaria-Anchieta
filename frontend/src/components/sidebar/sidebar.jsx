@@ -1,5 +1,12 @@
 import React from "react";
-import { ChartNoAxesCombined, Box, CircleDollarSign, PackageOpen, Users} from "lucide-react"; 
+import {
+  ChartNoAxesCombined,
+  Box,
+  CircleDollarSign,
+  PackageOpen,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 
 const menuItems = [
   { label: "Dashboard", icon: <ChartNoAxesCombined />, href: "/" },
@@ -11,24 +18,28 @@ const menuItems = [
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 h-screen p-6 flex flex-col">
-    <div className="logo flex flex-column ">
-      <img src="/icon.png" width={60} height={50} alt="" />
-        <div className="escritologo gap-0 flex flex-col align-center justify-center ">
-      <p className="subtitulo italic leading-[0.6] text-teal-800 text-md">Drogaria</p>
-      <h5 className="titulo font-bold text-4xl text-teal-800 ">NCHIETA</h5>
-      </div>
-      </div>
+    <aside className="w-55 h-screen p-2 flex flex-col">
+      {/* Logo */}
+      <Link href="/matriz">
+        <div className="logo flex items-center gap-1 mb-10 mt-2">
+          <img src="/icon.png" width={50} height={50} alt="" />
+          <div className="flex flex-col justify-center">
+            <p className="italic leading-[0.3] text-teal-800 text-xs">Drogaria</p>
+            <h5 className="font-bold text-3xl text-teal-800">NCHIETA</h5>
+          </div>
+        </div>
+      </Link>
 
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-2 w-full">
         {menuItems.map((item) => (
           <a
             key={item.label}
             href={item.href}
-            className="flex items-center gap-2 p-2 rounded hover:bg-accent hover:text-accent-foreground transition"
+            className="flex gap-3 p-2 rounded transition group relative duration-300 w-40 justify-start"
           >
-            {item.icon}
-            {item.label}
+            <div className="w-6 flex justify-center">{item.icon}</div>
+            <p className="text-left">{item.label}</p>
+            <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-teal-300 to-red-300 transition-all duration-300 group-hover:w-full" />
           </a>
         ))}
       </nav>
