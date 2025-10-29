@@ -2,72 +2,54 @@ import { Conta } from "../models/contasFilial.js";
 
 // 📤 Criar nova conta
 export const criarConta = async (req, res) => {
-  const { nomeConta, dataPostada, dataVencimento, valor, conta_pdf, status } = req.body;
+  const { nomeConta, categoria, dataPostada, dataVencimento, valor, conta_pdf, status } = req.body;
 
-  // Validação
-  if (
-    !nomeConta ||
-    !dataPostada ||
-    !dataVencimento ||
-    !valor ||
-    status === undefined ||
-    status === null
-  ) {
+  if (!nomeConta || !categoria || !dataPostada || !dataVencimento || !valor || !conta_pdf) {
     return res.status(400).json({ message: "Preencha todos os campos obrigatórios." });
   }
 
-  // Converte o status booleano para string do banco
   const statusBanco = status === true ? "pendente" : "paga";
 
   try {
+    const contasExistentes = await Conta.getAll();
+    const nomeDuplicado = contasExistentes.find(
+      (c) => c.nomeConta.toLowerCase().trim() === nomeConta.toLowerCase().trim()
+    );
+
+    if (nomeDuplicado) {
+      return res.status(409).json({ message: "Já existe uma conta com esse nome." });
+    }
+
     const insertId = await Conta.create({
       nomeConta,
+      categoria,
       dataPostada,
       dataVencimento,
       valor,
-      conta_pdf: conta_pdf ? Buffer.from(conta_pdf, "base64") : null,
+      conta_pdf: Buffer.from(conta_pdf, "base64"),
       status: statusBanco,
     });
 
-    return res
-      .status(201)
-      .json({ message: "Conta cadastrada com sucesso!", id: insertId });
+    return res.status(201).json({ message: "Conta cadastrada com sucesso!", id: insertId });
   } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "Já existe uma conta com esse nome." });
+    }
     console.error("Erro ao cadastrar conta:", err);
     return res.status(500).json({ message: "Erro ao cadastrar conta." });
   }
 };
 
-// 📥 Listar todas as contas
+// 📋 Listar
 export const listarConta = async (req, res) => {
   try {
     const contas = await Conta.getAll();
 
-    // Converte Buffer / ArrayBuffer → Base64 para o frontend exibir o PDF
-    const contasConvertidas = contas.map((f) => {
-      let conta_pdf_base64 = null;
-
-      if (f.conta_pdf) {
-        try {
-          // Caso venha como Buffer (Node)
-          if (Buffer.isBuffer(f.conta_pdf)) {
-            conta_pdf_base64 = f.conta_pdf.toString("base64");
-          }
-          // Caso venha como ArrayBuffer (MySQL2 ou outros drivers)
-          else if (f.conta_pdf instanceof ArrayBuffer || f.conta_pdf?.buffer) {
-            conta_pdf_base64 = Buffer.from(f.conta_pdf).toString("base64");
-          }
-        } catch (e) {
-          console.error("Erro ao converter PDF:", e);
-        }
-      }
-
-      return {
-        ...f,
-        status: f.status === "pendente", // converte para booleano
-        conta_pdf: conta_pdf_base64,
-      };
-    });
+    const contasConvertidas = contas.map((f) => ({
+      ...f,
+      status: f.status === "pendente",
+      conta_pdf: f.conta_pdf ? Buffer.from(f.conta_pdf).toString("base64") : null,
+    }));
 
     return res.status(200).json(contasConvertidas);
   } catch (err) {
@@ -76,19 +58,12 @@ export const listarConta = async (req, res) => {
   }
 };
 
-// ✏️ Editar conta existente
+// ✏️ Editar
 export const editarConta = async (req, res) => {
   const { id } = req.params;
-  const { nomeConta, dataPostada, dataVencimento, valor, conta_pdf, status } = req.body;
+  const { nomeConta, categoria, dataPostada, dataVencimento, valor, conta_pdf, status } = req.body;
 
-  if (
-    !nomeConta ||
-    !dataPostada ||
-    !dataVencimento ||
-    !valor ||
-    status === undefined ||
-    status === null
-  ) {
+  if (!nomeConta || !categoria || !dataPostada || !dataVencimento || !valor) {
     return res.status(400).json({ message: "Preencha todos os campos obrigatórios." });
   }
 
@@ -97,25 +72,26 @@ export const editarConta = async (req, res) => {
   try {
     const updated = await Conta.update(id, {
       nomeConta,
+      categoria,
       dataPostada,
       dataVencimento,
       valor,
       status: statusBanco,
-      ...(conta_pdf ? { conta_pdf: Buffer.from(conta_pdf, "base64") } : {}), // PDF opcional
+      ...(conta_pdf ? { conta_pdf: Buffer.from(conta_pdf, "base64") } : {}),
     });
 
-    if (!updated) {
-      return res.status(404).json({ message: "Conta não encontrada." });
-    }
+    if (!updated) return res.status(404).json({ message: "Conta não encontrada." });
 
     return res.status(200).json({ message: "Conta atualizada com sucesso!" });
   } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "Já existe uma conta com esse nome." });
+    }
     console.error("Erro ao atualizar conta:", err);
     return res.status(500).json({ message: "Erro ao atualizar conta." });
   }
 };
 
-// 🗑️ Excluir conta
 export const excluirConta = async (req, res) => {
   const { id } = req.params;
 

@@ -213,14 +213,16 @@ CREATE TABLE servicos (
 );
 
 CREATE TABLE contas (
-	id INT NOT NULL PRIMARY KEY auto_increment,
-    nomeConta VARCHAR(200) NOT NULL,
-    conta_pdf LONGBLOB not null,
-    status enum('paga', 'pendente') DEFAULT 'pendente',
-    dataVencimento DATE NOT NULL,
-    dataPostada DATE NOT NULL,
-    valor DECIMAL (10,2)
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  nomeConta VARCHAR(200) NOT NULL UNIQUE,
+  categoria VARCHAR(100) NOT NULL,
+  conta_pdf LONGBLOB NOT NULL,
+  status ENUM('paga', 'pendente') DEFAULT 'pendente',
+  dataVencimento DATE NOT NULL,
+  dataPostada DATE NOT NULL,
+  valor DECIMAL(10,2) NOT NULL
 );
+
 
 CREATE TABLE salarios (
 	id INT NOT NULL PRIMARY KEY auto_increment,
