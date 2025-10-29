@@ -161,7 +161,7 @@ export default function Filiados() {
       return;
     }
 
-    // Verificar se já existe usuário com mesmo CPF localmente (opcional, ajuda a evitar chamada desnecessária)
+    // Verificar se já existe usuário com mesmo CPF localmente
     const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
     if (existe) {
       alert("Usuário com este CPF já está cadastrado.");
@@ -402,6 +402,7 @@ export default function Filiados() {
                         onChange={handleChange}
                         className="border rounded-md p-2 w-full"
                         required
+                        disabled={key === "cpf"}
                       />
                     </div>
                   );

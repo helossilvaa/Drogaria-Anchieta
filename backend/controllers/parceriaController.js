@@ -47,14 +47,17 @@ export const atualizarParceria = async (req, res) => {
       return res.status(400).json({ message: "Dados inválidos." });
     }
 
-    // Verifica se a parceria existe
     const parceriaExistente = await Parcerias.getAll();
     const parceria = parceriaExistente.find(p => p.id === parseInt(id));
     if (!parceria) {
       return res.status(404).json({ message: "Parceria não encontrada." });
     }
 
-    // Atualiza no banco
+    const parceiroExistente = await Parcerias.getByNome(parceiro);
+    if (parceiroExistente && parceiroExistente.id !== parseInt(id)) {
+      return res.status(400).json({ message: "Já existe uma parceria com este nome. Insira outro." });
+    }
+
     await Parcerias.update(id, { parceiro, porcentagem });
     return res.status(200).json({ message: "Parceria atualizada com sucesso." });
   } catch (err) {

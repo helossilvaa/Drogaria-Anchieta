@@ -94,8 +94,14 @@ export const atualizarFiliado = async (req, res) => {
   const dados = req.body;
 
   try {
-    const atualizado = await Filiado.update(id, dados);
+    if (dados.cpf) {
+      const usuarioExistente = await Filiado.getByCPF(dados.cpf);
+      if (usuarioExistente && usuarioExistente.id !== id) {
+        return res.status(400).json({ message: "Já existe um usuário com este CPF." });
+      }
+    }
 
+    const atualizado = await Filiado.update(id, dados);
     if (atualizado === 0) {
       return res.status(404).json({ message: "Usuário não encontrado." });
     }
