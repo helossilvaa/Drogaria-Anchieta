@@ -3,7 +3,11 @@ import bcrypt from 'bcryptjs';
 
 const pool = mysql.createPool({
     host: '10.189.80.87',
+<<<<<<< HEAD
     user: 'Mariana',
+=======
+    user: 'Isabella',
+>>>>>>> 6c8890a0f1e70569738161db0dd98d9e29191073
     database: 'drogaria',
     password: 'Anchieta@123',
     waitForConnections: true,

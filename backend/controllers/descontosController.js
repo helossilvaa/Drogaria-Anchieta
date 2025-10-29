@@ -49,17 +49,18 @@ export const atualizarDesconto = async (req, res) => {
     }
 
     const descontos = await Descontos.getAll();
+    
     const descontoExistente = descontos.find(d => d.id === parseInt(id));
 
     if (!descontoExistente) {
       return res.status(404).json({ message: "Desconto não encontrado." });
     }
 
-    const duplicado = descontos.find(
+    const nomeDuplicado = descontos.find(
       d => d.nome.toLowerCase() === nome.toLowerCase() && d.id !== parseInt(id)
     );
 
-    if (duplicado) {
+    if (nomeDuplicado) {
       return res.status(400).json({ message: "Já existe um desconto com esse nome." });
     }
 
