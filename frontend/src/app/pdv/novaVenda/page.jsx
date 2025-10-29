@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,16 +32,8 @@ import {
 } from "@/components/ui/dialog";
 
 export default function NovaVendaPage() {
-  const [produtos, setProdutos] = useState([
-    { id: 1, nome: "Dipirona Monoidratada 50mg/ml", preco: 18.99, quantidade: 1 },
-    { id: 2, nome: "Paracetamol 500mg", preco: 12.5, quantidade: 1 },
-    { id: 3, nome: "Sabonete Facial 500mg", preco: 10.0, quantidade: 1 },
-    { id: 4, nome: "Creme Corporal 500mg", preco: 25.5, quantidade: 1 },
-    { id: 5, nome: "Escova de Dente", preco: 8.75, quantidade: 1 },
-    { id: 6, nome: "Shampoo Anticaspa", preco: 19.99, quantidade: 1 },
-    { id: 7, nome: "Protetor Solar FPS 50", preco: 42.0, quantidade: 1 },
-  ]);
-
+  // --- ESTADOS PRINCIPAIS ---
+  const [produtos, setProdutos] = useState([]);
   const [codigoBarras, setCodigoBarras] = useState("");
   const [desconto, setDesconto] = useState(0);
   const [codigoDesconto, setCodigoDesconto] = useState("");
@@ -49,6 +41,8 @@ export default function NovaVendaPage() {
   const [formaPagamento, setFormaPagamento] = useState("");
   const [alerta, setAlerta] = useState(null);
   const [mostrarNota, setMostrarNota] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mensagemFeedback, setMensagemFeedback] = useState({ type: "", text: "" });
 
   const itensPorPagina = 5;
   const totalPaginas = Math.max(1, Math.ceil(produtos.length / itensPorPagina));
@@ -56,10 +50,63 @@ export default function NovaVendaPage() {
   const fim = inicio + itensPorPagina;
   const produtosExibidos = produtos.slice(inicio, fim);
 
-  // Ajuste aqui para o seu backend (base)
-  const API_PRODUTOS_BASE = "http://localhost:8080/produtos";
+  const API_PRODUTOS = "http://localhost:8080/produtos";
   const API_URL = "http://localhost:8080/api/filiados";
 
+
+  const fetchProdutos = async () => {
+    const userToken = localStorage.getItem("authToken");
+    if (!userToken) {
+      setMensagemFeedback({
+        type: "error",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_PRODUTOS}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        throw new Error("Não autorizado. Verifique seu token de acesso.");
+      }
+
+      if (!res.ok) {
+        throw new Error("Erro ao carregar a lista de produtos. Status: " + res.status);
+      }
+
+      const data = await res.json();
+      // Adiciona quantidade inicial
+      const produtosComQuantidade = data.map((p, i) => ({
+        id: p.id ?? i,
+        nome: p.nome ?? p.descricao ?? "Produto sem nome",
+        preco: Number(p.preco ?? p.preco_unitario ?? 0),
+        quantidade: 1,
+      }));
+      setProdutos(produtosComQuantidade);
+    } catch (err) {
+      console.error("Erro ao buscar produtos:", err);
+      setMensagemFeedback({
+        type: "error",
+        text: err.message || "Erro de rede ao carregar a lista.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProdutos();
+  }, []);
+
+  // --- FUNÇÕES AUXILIARES ---
   const alterarQuantidade = (id, delta) => {
     setProdutos((prev) =>
       prev.map((p) =>
@@ -89,7 +136,7 @@ export default function NovaVendaPage() {
       mostrarAlerta("Selecione uma forma de pagamento antes de prosseguir!", "erro");
       return;
     }
-    setMostrarNota(true); // Abre o modal da nota fiscal
+    setMostrarNota(true);
   };
 
   const aplicarDescontoCodigo = () => {
@@ -110,7 +157,7 @@ export default function NovaVendaPage() {
     window.print();
   };
 
-  // ====== FILIADO ======
+  // --- FILIADO ---
   const [novoFiliado, setNovoFiliado] = useState({
     nome: "",
     cpf: "",
@@ -138,12 +185,10 @@ export default function NovaVendaPage() {
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
       const data = await res.json();
-
       if (data.erro) {
         mostrarAlerta("CEP não encontrado!", "erro");
         return;
       }
-
       setNovoFiliado((prev) => ({
         ...prev,
         cidade: data.localidade || "",
@@ -158,6 +203,16 @@ export default function NovaVendaPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensagemFeedback({ type: "", text: "" });
+
+    const userToken = localStorage.getItem("authToken");
+    if (!userToken) {
+      setMensagemFeedback({
+        type: "error",
+        text: "Você precisa estar logado para cadastrar filiado.",
+      });
+      return;
+    }
 
     const cpfLimpo = novoFiliado.cpf.replace(/\D/g, "");
     const telefoneLimpo = novoFiliado.telefone.replace(/\D/g, "");
@@ -191,7 +246,10 @@ export default function NovaVendaPage() {
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
         body: JSON.stringify(filiadoEnvio),
       });
 
@@ -228,30 +286,22 @@ export default function NovaVendaPage() {
     }
   };
 
-  // ===== BUSCA PELO CÓDIGO DE BARRAS (resiliente) =====
+  // --- BUSCA PRODUTO POR CÓDIGO ---
   const parseProduto = (raw) => {
-    // tenta normalizar várias formas de resposta
     if (!raw) return null;
-    // se vier um array, pega o primeiro
     if (Array.isArray(raw)) raw = raw[0] ?? null;
     if (!raw) return null;
 
     const id = raw.id ?? raw.product_id ?? raw.codigo ?? raw.codigo_barras ?? null;
     const nome = raw.nome ?? raw.name ?? raw.descricao ?? raw.description ?? raw.title ?? "";
     const preco =
-      raw.preco_unitario ??
-      raw.preco ??
-      raw.price ??
-      raw.valor ??
-      raw.unit_price ??
-      0;
+      raw.preco_unitario ?? raw.preco ?? raw.price ?? raw.valor ?? raw.unit_price ?? 0;
 
-    if (id == null) return null;
-    return {
-      id,
-      nome,
-      preco: Number(preco),
-    };
+    if (id == null) {
+      console.error("ID não encontrado na resposta do produto:", raw);
+      return null;
+    }
+    return { id, nome, preco: Number(preco) };
   };
 
   const fetchTentativa = async (url) => {
@@ -272,45 +322,13 @@ export default function NovaVendaPage() {
       return;
     }
 
-    // tentativas de rota: ajustar conforme seu backend
-    const tentativas = [
-      `${API_PRODUTOS_BASE}/codigo/${encodeURIComponent(code)}`, // /produtos/codigo/:code
-      `${API_PRODUTOS_BASE}/buscar/${encodeURIComponent(code)}`, // /produtos/buscar/:code
-      `${API_PRODUTOS_BASE}/?codigo_barras=${encodeURIComponent(code)}`, // query param
-      `${API_PRODUTOS_BASE}?codigo=${encodeURIComponent(code)}`,
-      `${API_PRODUTOS_BASE}/barcode/${encodeURIComponent(code)}`,
-    ];
-
-    let produto = null;
-    for (const url of tentativas) {
-      produto = await fetchTentativa(url);
-      if (produto) break;
-    }
-
-    // última tentativa: consultar endpoint genérico e filtrar (se existir)
-    if (!produto) {
-      try {
-        const r = await fetch(API_PRODUTOS_BASE); // pegar todos (pode ser pesado)
-        if (r.ok) {
-          const all = await r.json();
-          // procura por campo codigo_barras ou codigo
-          const found = (Array.isArray(all) ? all : []).find((p) => {
-            const cb = String(p.codigo_barras ?? p.codigo ?? p.barcode ?? "").trim();
-            return cb && cb === code;
-          });
-          produto = parseProduto(found);
-        }
-      } catch {
-        // ignora
-      }
-    }
+    let produto = await fetchTentativa(`${API_PRODUTOS}/${code}`);
 
     if (!produto) {
       mostrarAlerta("Produto não encontrado!", "erro");
       return;
     }
 
-    // adiciona ou incrementa quantidade
     setProdutos((prev) => {
       const existe = prev.find((p) => String(p.id) === String(produto.id));
       if (existe) {
@@ -318,15 +336,9 @@ export default function NovaVendaPage() {
           String(p.id) === String(produto.id) ? { ...p, quantidade: p.quantidade + 1 } : p
         );
       } else {
-        // garantir id numérico único (ou string) conforme seu backend
         return [
           ...prev,
-          {
-            id: produto.id,
-            nome: produto.nome || "Produto sem nome",
-            preco: Number(produto.preco ?? 0) || 0,
-            quantidade: 1,
-          },
+          { id: produto.id, nome: produto.nome, preco: Number(produto.preco), quantidade: 1 },
         ];
       }
     });
@@ -348,18 +360,24 @@ export default function NovaVendaPage() {
               : "bg-gray-600"
           }`}
         >
-          {alerta.tipo === "sucesso" ? (
-            <CheckCircle2 size={20} />
-          ) : (
-            <AlertCircle size={20} />
-          )}
+          {alerta.tipo === "sucesso" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
           <span className="font-medium">{alerta.mensagem}</span>
+        </div>
+      )}
+
+      {mensagemFeedback.text && (
+        <div
+          className={`fixed top-20 right-6 px-5 py-3 rounded-xl shadow-lg text-white ${
+            mensagemFeedback.type === "error" ? "bg-pink-500" : "bg-green-500"
+          }`}
+        >
+          {mensagemFeedback.text}
         </div>
       )}
 
       <div className="w-full max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-6">
         <div className="md:col-span-2">
-          {/* Campo de código de barras: suporte Enter + botão */}
+     
           <div className="flex gap-2">
             <Input
               placeholder="Insira o código do produto (ou escaneie) e pressione Enter"
