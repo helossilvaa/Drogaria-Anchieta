@@ -7,6 +7,7 @@ export const Conta = {
 
   getAll: async () => {
     return await readAll("contas");
+    
   },
 
   update: async (id, data) => {
@@ -16,4 +17,5 @@ export const Conta = {
   delete: async (id) => {
     return await deleteRecord("contas", `id = ${id}`);
   },
+
 };
