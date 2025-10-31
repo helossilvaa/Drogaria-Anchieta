@@ -542,37 +542,38 @@ export default function Filiados() {
             </div>
 
             {/* PAGINAÇÃO */}
-            <div className="flex justify-center items-center gap-2 mt-4 select-none">
-              <button
-                onClick={() => mudarPagina(paginaAtual - 1)}
-                disabled={paginaAtual === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-              >
-                &lt; Anterior
-              </button>
+            {usuariosFiltrados.length >= itensPorPagina && (
+              <div className="flex justify-center items-center gap-2 mt-4 select-none">
+                <button
+                  onClick={() => mudarPagina(paginaAtual - 1)}
+                  disabled={paginaAtual === 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+                >
+                  &lt; Anterior
+                </button>
 
-              {[...Array(totalPaginas)].map((_, i) => {
-                const numeroPagina = i + 1;
-                return (
-                  <button
-                    key={numeroPagina}
-                    onClick={() => mudarPagina(numeroPagina)}
-                    className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
-                      }`}
-                  >
-                    {numeroPagina}
-                  </button>
-                );
-              })}
+                {[...Array(totalPaginas)].map((_, i) => {
+                  const numeroPagina = i + 1;
+                  return (
+                    <button
+                      key={numeroPagina}
+                      onClick={() => mudarPagina(numeroPagina)}
+                      className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""}`}
+                    >
+                      {numeroPagina}
+                    </button>
+                  );
+                })}
 
-              <button
-                onClick={() => mudarPagina(paginaAtual + 1)}
-                disabled={paginaAtual === totalPaginas}
-                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-              >
-                Próxima &gt;
-              </button>
-            </div>
+                <button
+                  onClick={() => mudarPagina(paginaAtual + 1)}
+                  disabled={paginaAtual === totalPaginas}
+                  className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+                >
+                  Próxima &gt;
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <p className="text-center text-gray-500 mt-6 text-lg">

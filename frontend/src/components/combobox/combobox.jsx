@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import * as React from "react";
 import { useState, useEffect } from "react";
@@ -8,9 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -22,6 +20,7 @@ import {
 
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
+import { DialogConfig } from "../dialogConfiguracoes/configuracoes";
 
 const menuItems = [
   { value: "configuracoes", label: "Configurações", icon: Settings },
@@ -31,16 +30,19 @@ const menuItems = [
 function getInitials(name) {
   if (!name) return "";
   const parts = name.trim().split(" ");
-  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join("");
+  return parts
+    .slice(0, 2)
+    .map((p) => p[0].toUpperCase())
+    .join("");
 }
 
 export function ComboboxDemo() {
-  
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [dadosUsuario, setDadosUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
 
   const API_URL = "http://localhost:8080";
   const router = useRouter();
@@ -100,65 +102,85 @@ export function ComboboxDemo() {
   const userImage = dadosUsuario?.foto;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[220px] justify-between"
-        >
-          <div className="flex items-center gap-2">
-            {userImage ? (
-              <Image
-                src={userImage}
-                alt={userName}
-                width={24}
-                height={24}
-                className="rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium uppercase">
-                {getInitials(userName)}
-              </div>
-            )}
-            <span className="font-medium">{userName}</span>
-          </div>
+    <>
+      {/* Popover do combobox */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[220px] justify-between"
+          >
+            <div className="flex items-center gap-2">
+              {userImage ? (
+                <Image
+                  src={userImage}
+                  alt={userName}
+                  width={24}
+                  height={24}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium uppercase">
+                  {getInitials(userName)}
+                </div>
+              )}
+              <span className="font-medium">{userName}</span>
+            </div>
 
-          <ChevronsUpDown className="opacity-50 h-4 w-4" />
-        </Button>
-      </PopoverTrigger>
+            <ChevronsUpDown className="opacity-50 h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
 
-      <PopoverContent className="w-[220px] p-0">
-        <Command>
-          <CommandList>
-            <CommandGroup>
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <CommandItem
-                    key={item.value}
-                    value={item.value}
-                    onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue);
-                      setOpen(false);
-                    }}
-                  >
-                    <Icon className="mr-2 h-4 w-4" />
-                    {item.label}
-                    <Check
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        value === item.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+        <PopoverContent className="w-[220px] p-0">
+          <Command>
+            <CommandList>
+              <CommandGroup>
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+
+                  // Se for CONFIGURAÇÕES
+                  if (item.value === "configuracoes") {
+                    return (
+                      <CommandItem
+                        key={item.value}
+                        onSelect={() => {
+                          setOpen(false);       // Fecha o popover
+                          setOpenDialog(true);  // Abre o dialog
+                        }}
+                      >
+                        <Icon className="mr-2 h-4 w-4" />
+                        {item.label}
+                      </CommandItem>
+                    );
+                  }
+
+                  // Se for SAIR
+                  return (
+                    <CommandItem
+                      key={item.value}
+                      onSelect={() => {
+                        setOpen(false);
+                        localStorage.removeItem("token");
+                        router.push("/");
+                      }}
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      {item.label}
+                    </CommandItem>
+                  );
+                })}
+
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+
+      <DialogConfig open={openDialog} onOpenChange={setOpenDialog} />
+
+    </>
   );
 }

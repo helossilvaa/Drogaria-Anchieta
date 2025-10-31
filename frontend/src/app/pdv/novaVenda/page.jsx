@@ -1,5 +1,6 @@
 "use client";
 
+import Layout from "@/components/layout/layout";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -349,6 +350,7 @@ export default function NovaVendaPage() {
   };
 
   return (
+    <Layout>
     <div className="min-h-screen flex items-center justify-center bg-white py-10 relative">
       {alerta && (
         <div
@@ -729,5 +731,6 @@ export default function NovaVendaPage() {
         </Card>
       </div>
     </div>
+    </Layout>
   );
 }
