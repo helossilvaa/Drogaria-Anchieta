@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+
 export default function Layout({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
