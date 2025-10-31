@@ -1,5 +1,5 @@
 "use client";
-
+import Layout from "@/components/layout/layout";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, CircleDollarSign} from "lucide-react"; 
@@ -150,6 +150,7 @@ export default function Dashboard() {
   ];
 
   return ( 
+    <Layout>
     <div className="min-h-screen p-6 bg-gray-50">
       {/* Navegação */}
       <div className="flex flex-wrap gap-4 mb-6">
@@ -198,5 +199,6 @@ export default function Dashboard() {
         <ChartArea data={salesData[activePeriod]} dataKey="clientes" title="Clientes Atendidos" />
       </div>
     </div>
+    </Layout>
   );
 }

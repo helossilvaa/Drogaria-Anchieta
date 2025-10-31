@@ -1,5 +1,6 @@
 "use client";
 
+import Layout from "@/components/layout/layout";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function NovaVendaPage() {
-  // --- ESTADOS PRINCIPAIS ---
+  
   const [produtos, setProdutos] = useState([]);
   const [codigoBarras, setCodigoBarras] = useState("");
   const [desconto, setDesconto] = useState(0);
@@ -349,7 +350,8 @@ export default function NovaVendaPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white py-10 relative">
+    <Layout>
+    <div className="min-h-screen flex items-center justify-center py-10 relative">
       {alerta && (
         <div
           className={`fixed top-6 right-6 px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-white transition-all duration-500 ${
@@ -729,5 +731,6 @@ export default function NovaVendaPage() {
         </Card>
       </div>
     </div>
+    </Layout>
   );
 }
