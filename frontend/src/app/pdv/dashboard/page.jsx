@@ -40,7 +40,6 @@ const salesData = {
   ],
 };
 
-// KPICard
 function KPICard({ label, value, icon, variation, onClick }) {
   return (
    
@@ -88,7 +87,7 @@ function ChartArea({ data, dataKey, title }) {
             <YAxis />
             <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
             <Area
-              type="natural"
+              type="natural" 
               dataKey={dataKey}
               fill={`var(--color-${dataKey})`}
               fillOpacity={0.4}

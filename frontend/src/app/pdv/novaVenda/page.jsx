@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function NovaVendaPage() {
-  // --- ESTADOS PRINCIPAIS ---
+  
   const [produtos, setProdutos] = useState([]);
   const [codigoBarras, setCodigoBarras] = useState("");
   const [desconto, setDesconto] = useState(0);
@@ -84,7 +84,7 @@ export default function NovaVendaPage() {
       }
 
       const data = await res.json();
-      // Adiciona quantidade inicial
+   
       const produtosComQuantidade = data.map((p, i) => ({
         id: p.id ?? i,
         nome: p.nome ?? p.descricao ?? "Produto sem nome",
@@ -107,7 +107,7 @@ export default function NovaVendaPage() {
     fetchProdutos();
   }, []);
 
-  // --- FUNÇÕES AUXILIARES ---
+
   const alterarQuantidade = (id, delta) => {
     setProdutos((prev) =>
       prev.map((p) =>
@@ -158,7 +158,7 @@ export default function NovaVendaPage() {
     window.print();
   };
 
-  // --- FILIADO ---
+
   const [novoFiliado, setNovoFiliado] = useState({
     nome: "",
     cpf: "",
@@ -287,7 +287,7 @@ export default function NovaVendaPage() {
     }
   };
 
-  // --- BUSCA PRODUTO POR CÓDIGO ---
+
   const parseProduto = (raw) => {
     if (!raw) return null;
     if (Array.isArray(raw)) raw = raw[0] ?? null;
@@ -351,7 +351,7 @@ export default function NovaVendaPage() {
 
   return (
     <Layout>
-    <div className="min-h-screen flex items-center justify-center bg-white py-10 relative">
+    <div className="min-h-screen flex items-center justify-center py-10 relative">
       {alerta && (
         <div
           className={`fixed top-6 right-6 px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-white transition-all duration-500 ${
