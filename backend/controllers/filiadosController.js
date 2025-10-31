@@ -130,3 +130,20 @@ export const deletarFiliado = async (req, res) => {
     return res.status(500).json({ message: "Erro ao excluir usuário." });
   }
 };
+
+//Obter filiado pelo CPF
+export const obterFiliadoPorCPFController = async (req, res) => {
+  try {
+    const { cpf } = req.params;
+    const filiado = await Filiados.getByCPF(cpf);
+
+    if (!filiado) {
+      return res.status(404).json({ mensagem: "Filiado não encontrado" });
+    }
+
+    res.status(200).json(filiado);
+  } catch (error) {
+    console.error("Erro ao obter filiado por CPF:", error);
+    res.status(500).json({ mensagem: "Erro ao buscar filiado" });
+  }
+};
