@@ -19,8 +19,11 @@ export default function ParceriasDescontos() {
   const [tipodescontoId, setTipoDescontoId] = useState("");
   const [nomeDesconto, setNomeDesconto] = useState("");
   const [valorDesconto, setValorDesconto] = useState("");
-   const [searchParceria, setSearchParceria] = useState("");
-  const [searchDesconto, setSearchDesconto] = useState(""); 
+  const [searchParceria, setSearchParceria] = useState("");
+  const [searchDesconto, setSearchDesconto] = useState("");
+  const [paginaParceria, setPaginaParceria] = useState(1);
+  const [paginaDesconto, setPaginaDesconto] = useState(1);
+  const itensPorPagina = 15;
   const [descontos, setDescontos] = useState([]);
   const [activeTab, setActiveTab] = useState("parcerias");
   const [lineStyle, setLineStyle] = useState({});
@@ -290,6 +293,24 @@ export default function ParceriasDescontos() {
     desconto.nome.toLowerCase().includes(searchDesconto.toLowerCase())
   );
 
+  // Paginação das parcerias
+  const startParceria = (paginaParceria - 1) * itensPorPagina;
+  const paginatedParcerias = parcerias
+    .filter((p) => p.parceiro.toLowerCase().includes(searchParceria.toLowerCase()))
+    .slice(startParceria, startParceria + itensPorPagina);
+  const totalPaginasParcerias = Math.ceil(
+    parcerias.filter((p) => p.parceiro.toLowerCase().includes(searchParceria.toLowerCase())).length / itensPorPagina
+  );
+
+  // Paginação dos descontos
+  const startDesconto = (paginaDesconto - 1) * itensPorPagina;
+  const paginatedDescontos = descontos
+    .filter((d) => d.nome.toLowerCase().includes(searchDesconto.toLowerCase()))
+    .slice(startDesconto, startDesconto + itensPorPagina);
+  const totalPaginasDescontos = Math.ceil(
+    descontos.filter((d) => d.nome.toLowerCase().includes(searchDesconto.toLowerCase())).length / itensPorPagina
+  );
+
   return (
     <>
       {/* Título da página */}
@@ -329,13 +350,10 @@ export default function ParceriasDescontos() {
 
             {/* Barra de pesquisa */}
             <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Buscar parceiro..."
-                className="p-2 w-full border rounded focus:ring-blue-500 focus:border-blue-500"
-                value={searchParceria}
-                onChange={(e) => setSearchParceria(e.target.value)}
-              />
+              <input type="text" placeholder="Buscar parceiro..." className="p-2 w-64 border rounded focus:ring-blue-500 focus:border-blue-500" value={searchParceria} onChange={(e) => setSearchParceria(e.target.value)} />
+              <button className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300">
+                Pesquisar
+              </button>
             </div>
 
             {/* Modal para criar nova parceria */}
@@ -414,7 +432,7 @@ export default function ParceriasDescontos() {
             )}
 
             {/* Tabela de Parcerias */}
-            {filteredParcerias.length === 0 ? (
+            {paginatedParcerias.length === 0 ? (
               <p className="text-center text-gray-500 mt-6 text-lg">Nenhuma parceria encontrada</p>
             ) : (
               <div className="mt-6 overflow-x-auto shadow-md rounded-lg">
@@ -428,7 +446,7 @@ export default function ParceriasDescontos() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredParcerias.map(p => (
+                    {paginatedParcerias.map(p => (
                       <tr key={p.id} className="hover:bg-gray-50">
                         <td className="p-3">{p.id}</td>
                         <td className="p-3">{p.parceiro}</td>
@@ -449,6 +467,29 @@ export default function ParceriasDescontos() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Paginação de Parcerias */}
+            {totalPaginasParcerias > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-4">
+                <button
+                  onClick={() => setPaginaParceria((prev) => Math.max(prev - 1, 1))}
+                  disabled={paginaParceria === 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  &lt; Anterior
+                </button>
+
+                <span className="px-3 py-1 bg-red-200 rounded">{paginaParceria}</span>
+
+                <button
+                  onClick={() => setPaginaParceria((prev) => Math.min(prev + 1, totalPaginasParcerias))}
+                  disabled={paginaParceria === totalPaginasParcerias || totalPaginasParcerias === 0}
+                  className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  Próxima &gt;
+                </button>
               </div>
             )}
           </section>
@@ -475,15 +516,12 @@ export default function ParceriasDescontos() {
               Novo Desconto
             </button>
 
-             {/* Barra de pesquisa */}
+            {/* Barra de pesquisa */}
             <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Buscar desconto..."
-                className="p-2 w-full border rounded focus:ring-blue-500 focus:border-blue-500"
-                value={searchDesconto}
-                onChange={(e) => setSearchDesconto(e.target.value)}
-              />
+              <input type="text" placeholder="Buscar desconto..." className="p-2 w-64 border rounded focus:ring-blue-500 focus:border-blue-500" value={searchDesconto} onChange={(e) => setSearchDesconto(e.target.value)} />
+              <button className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300">
+                Pesquisar
+              </button>
             </div>
 
             {/* Modal para criar novo desconto */}
@@ -588,7 +626,7 @@ export default function ParceriasDescontos() {
             )}
 
             {/* Tabela de Descontos */}
-            {filteredDescontos.length === 0 ? (
+            {paginatedDescontos.length === 0 ? (
               <p className="text-center text-gray-500 mt-6 text-lg">Nenhum desconto encontrado</p>
             ) : (
               <div className="mt-6 overflow-x-auto shadow-md rounded-lg">
@@ -603,7 +641,7 @@ export default function ParceriasDescontos() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredDescontos.map((d) => (
+                    {paginatedDescontos.map((d) => (
                       <tr key={d.id} className="hover:bg-gray-50">
                         <td className="p-3">{d.id}</td>
                         <td className="p-3">{d.tipodesconto_id}</td>
@@ -613,14 +651,7 @@ export default function ParceriasDescontos() {
                         </td>
                         <td className="p-3 flex justify-center items-center gap-3">
                           <button onClick={() => abrirEdicaoDesconto(d)} title="Editar" className="text-green-600 hover:text-green-800 transition-colors">
-                            <svg
-                              className="w-6 h-6"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
+                            <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                             </svg>
                           </button>
@@ -634,6 +665,29 @@ export default function ParceriasDescontos() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Paginação de Descontos */}
+            {totalPaginasDescontos > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-4">
+                <button
+                  onClick={() => setPaginaDesconto((prev) => Math.max(prev - 1, 1))}
+                  disabled={paginaDesconto === 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  &lt; Anterior
+                </button>
+
+                <span className="px-3 py-1 bg-red-200 rounded">{paginaDesconto}</span>
+
+                <button
+                  onClick={() => setPaginaDesconto((prev) => Math.min(prev + 1, totalPaginasDescontos))}
+                  disabled={paginaDesconto === totalPaginasDescontos || totalPaginasDescontos === 0}
+                  className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+                >
+                  Próxima &gt;
+                </button>
               </div>
             )}
           </section>

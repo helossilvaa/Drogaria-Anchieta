@@ -112,63 +112,63 @@ export default function Filiados() {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Validações no frontend
-  if (novoUsuario.cpf.length !== 11) {
-    alert("CPF deve conter exatamente 11 dígitos.");
-    return;
-  }
-
-  // Verificar se já existe usuário com mesmo CPF localmente
-  const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
-  if (existe) {
-    alert("Usuário com este CPF já está cadastrado.");
-    return;
-  }
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(novoUsuario),
-    });
-
-    if (!res.ok) {
-      let erroMsg = "Erro ao salvar usuário";
-      try {
-        const erro = await res.json();
-        erroMsg = erro.message || JSON.stringify(erro) || erroMsg;
-      } catch {
-        const texto = await res.text();
-        erroMsg = texto || erroMsg;
-      }
-      throw new Error(erroMsg);
+    // Validações no frontend
+    if (novoUsuario.cpf.length !== 11) {
+      alert("CPF deve conter exatamente 11 dígitos.");
+      return;
     }
 
-    alert("Usuário cadastrado com sucesso!");
-    setAbrirModal(false);
-    setNovoUsuario({
-      nome: "",
-      email: "",
-      telefone: "",
-      cpf: "",
-      data_nascimento: "",
-      cep: "",
-      cidade: "",
-      estado: "",
-      bairro: "",
-      logradouro: "",
-      numero: "",
-      tipodesconto: "",
-    });
-    fetchUsuarios();
-  } catch (err) {
-    console.error("Erro ao cadastrar usuário:", err);
-    alert(err.message || "Erro ao cadastrar usuário.");
-  }
-};
+    // Verificar se já existe usuário com mesmo CPF localmente
+    const existe = usuarios.find(u => u.cpf === novoUsuario.cpf);
+    if (existe) {
+      alert("Usuário com este CPF já está cadastrado.");
+      return;
+    }
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoUsuario),
+      });
+
+      if (!res.ok) {
+        let erroMsg = "Erro ao salvar usuário";
+        try {
+          const erro = await res.json();
+          erroMsg = erro.message || JSON.stringify(erro) || erroMsg;
+        } catch {
+          const texto = await res.text();
+          erroMsg = texto || erroMsg;
+        }
+        throw new Error(erroMsg);
+      }
+
+      alert("Usuário cadastrado com sucesso!");
+      setAbrirModal(false);
+      setNovoUsuario({
+        nome: "",
+        email: "",
+        telefone: "",
+        cpf: "",
+        data_nascimento: "",
+        cep: "",
+        cidade: "",
+        estado: "",
+        bairro: "",
+        logradouro: "",
+        numero: "",
+        tipodesconto: "",
+      });
+      fetchUsuarios();
+    } catch (err) {
+      console.error("Erro ao cadastrar usuário:", err);
+      alert(err.message || "Erro ao cadastrar usuário.");
+    }
+  };
 
   return (
     <>
@@ -327,37 +327,39 @@ export default function Filiados() {
             </div>
 
             {/* PAGINAÇÃO */}
-            <div className="flex justify-center items-center gap-2 mt-4 select-none">
-              <button
-                onClick={() => mudarPagina(paginaAtual - 1)}
-                disabled={paginaAtual === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-              >
-                &lt; Anterior
-              </button>
+            {usuariosFiltrados.length > itensPorPagina && (
+              <div className="flex justify-center items-center gap-2 mt-4 select-none">
+                <button
+                  onClick={() => mudarPagina(paginaAtual - 1)}
+                  disabled={paginaAtual === 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+                >
+                  &lt; Anterior
+                </button>
 
-              {[...Array(totalPaginas)].map((_, i) => {
-                const numeroPagina = i + 1;
-                return (
-                  <button
-                    key={numeroPagina}
-                    onClick={() => mudarPagina(numeroPagina)}
-                    className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
-                      }`}
-                  >
-                    {numeroPagina}
-                  </button>
-                );
-              })}
+                {[...Array(totalPaginas)].map((_, i) => {
+                  const numeroPagina = i + 1;
+                  return (
+                    <button
+                      key={numeroPagina}
+                      onClick={() => mudarPagina(numeroPagina)}
+                      className={`px-3 py-1 border rounded ${paginaAtual === numeroPagina ? "bg-red-300" : ""
+                        }`}
+                    >
+                      {numeroPagina}
+                    </button>
+                  );
+                })}
 
-              <button
-                onClick={() => mudarPagina(paginaAtual + 1)}
-                disabled={paginaAtual === totalPaginas}
-                className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
-              >
-                Próxima &gt;
-              </button>
-            </div>
+                <button
+                  onClick={() => mudarPagina(paginaAtual + 1)}
+                  disabled={paginaAtual === totalPaginas}
+                  className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+                >
+                  Próxima &gt;
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <p className="text-center text-gray-500 mt-6 text-lg">
