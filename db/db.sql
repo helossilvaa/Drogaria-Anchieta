@@ -8,6 +8,14 @@ CREATE TABLE setor (
     setor VARCHAR(250) NOT NULL
 );
 
+CREATE TABLE departamento (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  setor_id INT NOT NULL,
+  FOREIGN KEY (setor_id) REFERENCES setor(id)
+);
+
+
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     registro INT NOT NULL,
@@ -224,14 +232,21 @@ CREATE TABLE contas (
 );
 
 
-CREATE TABLE salarios (
-	id INT NOT NULL PRIMARY KEY auto_increment,
-    id_funcionario INT NOT NULL,
-    setor_id INT NOT NULL,
-    unidade_id INT NOT NULL,
-    FOREIGN KEY (unidade_id) REFERENCES unidade(id),
-    foreign key (setor_id) REFERENCES setor(id)
+CREATE TABLE IF NOT EXISTS salarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_funcionario INT NOT NULL,
+  setor_id INT NOT NULL,
+  departamento_id INT NOT NULL,
+  unidade_id INT NOT NULL,
+  valor DECIMAL(10,2) NOT NULL,
+  status_pagamento ENUM('pendente', 'pago') DEFAULT 'pendente',
+  data_atualizado TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_funcionario) REFERENCES usuarios(id),
+  FOREIGN KEY (setor_id) REFERENCES setor(id),
+  FOREIGN KEY (departamento_id) REFERENCES departamento(id),
+  FOREIGN KEY (unidade_id) REFERENCES unidade(id)
 );
+
 
 CREATE TABLE tiporelatorio (
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
