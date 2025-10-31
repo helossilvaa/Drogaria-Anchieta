@@ -83,7 +83,7 @@ export default function NovaVendaPage() {
       }
 
       const data = await res.json();
-      // Adiciona quantidade inicial
+   
       const produtosComQuantidade = data.map((p, i) => ({
         id: p.id ?? i,
         nome: p.nome ?? p.descricao ?? "Produto sem nome",
@@ -106,7 +106,7 @@ export default function NovaVendaPage() {
     fetchProdutos();
   }, []);
 
-  // --- FUNÇÕES AUXILIARES ---
+
   const alterarQuantidade = (id, delta) => {
     setProdutos((prev) =>
       prev.map((p) =>
@@ -157,7 +157,7 @@ export default function NovaVendaPage() {
     window.print();
   };
 
-  // --- FILIADO ---
+
   const [novoFiliado, setNovoFiliado] = useState({
     nome: "",
     cpf: "",
@@ -286,7 +286,7 @@ export default function NovaVendaPage() {
     }
   };
 
-  // --- BUSCA PRODUTO POR CÓDIGO ---
+
   const parseProduto = (raw) => {
     if (!raw) return null;
     if (Array.isArray(raw)) raw = raw[0] ?? null;
